@@ -1,6 +1,6 @@
 # Makefile for Syndicate CI Test
 
-CONTAINER_DIR ?= containers
+CONTAINER_DIR ?= ./containers
 RESULT_DIR ?= ./results
 
 .PHONY: tests
