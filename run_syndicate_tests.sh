@@ -10,6 +10,7 @@ rm -f ${RESULTDIR}/*.tap
 # run the tests
 for test in ${PATHDIR}/*.sh; do
   testname=${test##*/}
+  echo "running test ${test}"
   bash ${test} > ${RESULTDIR}/${testname%.*}.tap
 done
 

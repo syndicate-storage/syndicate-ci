@@ -1,0 +1,14 @@
+# Syndicate CI Test Dockerfile
+
+FROM syndicate-ci-base
+MAINTAINER Zack Williams <zdw@cs.arizona.edu>
+
+# Install Syndicate UG tools
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
+    syndicate-ug-tools
+
+# Switch to being the syndicate user
+USER syndicate
+
+# Run the tests
+CMD /bin/bash /opt/run_syndicate_tests.sh

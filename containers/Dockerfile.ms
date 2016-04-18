@@ -1,6 +1,6 @@
 # Syndicate CI Test MS Dockerfile
 
-FROM syndicate.base
+FROM syndicate-ci-base
 MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 
 ENV MS_PORT 8080
@@ -9,15 +9,18 @@ ENV GAE_SDK google_appengine_1.9.35.zip
 # Install Syndicate MS
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
     syndicate-ms \
-    wget \
     unzip
 
 # setup GAE
-RUN wget -nv https://storage.googleapis.com/appengine-sdks/featured/$GAE_SDK
+WORKDIR $HOME
+COPY $GAE_SDK $GAE_SDK
 RUN unzip -q $GAE_SDK
 
 # Expose the MS port
 EXPOSE $MS_PORT
+
+# Switch to being the syndicate user
+USER syndicate
 
 # Create a storage location
 RUN mkdir $HOME/datastore
