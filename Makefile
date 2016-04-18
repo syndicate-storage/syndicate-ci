@@ -31,10 +31,6 @@ build:
 	sudo docker build -f $(CONTAINER_DIR)/Dockerfile.ms --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-ms $(CONTAINER_DIR)
 	sudo docker build -f $(CONTAINER_DIR)/Dockerfile.test --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-test $(CONTAINER_DIR)
 
-.PHONY: build
-build:
-	docker build --no-cache=${NO_DOCKER_CACHE} --rm -t ci-syndicate $(CONTAINER_DIR)
-
 docker_test: $(GAE_SDK) up rm
 
 up: $(GAE_SDK) $(CONTAINER_DIR)/ms/app.yaml
