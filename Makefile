@@ -21,8 +21,8 @@ clean:
 	rm -f $(RESULT_DIR)/*.tap
 
 # For configuring the MS
-BUILD_MS := $(CONTAINER_DIR)/ms/
-MS_:= $(CONTAINER_DIR)/ms/
+BUILD_MS := $(CONTAINER_DIR)/ms
+MS_FILES:= $(CONTAINER_DIR)/ms
 include configure_ms.mk
 
 .PHONY: build

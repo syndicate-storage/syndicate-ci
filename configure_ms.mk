@@ -43,7 +43,7 @@ $(BUILD_MS)/app.yaml: $(MS_FILES)/app.yamlin $(MS_APP_ADMIN_PUBLIC_KEY) $(MS_APP
 				> "$@"
 
 clean_ms:
-	rm -f $(MS_CONFIG_DIR)/ms/app.yaml
+	rm -f $(BUILD_MS)/ms/app.yaml
 
 clean_certs: clean_ms
 	rm -f $(MS_APP_ADMIN_PUBLIC_KEY) $(MS_APP_ADMIN_PRIVATE_KEY) $(MS_APP_PUBLIC_KEY) $(MS_APP_PRIVATE_KEY)
