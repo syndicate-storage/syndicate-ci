@@ -12,9 +12,10 @@ GAE_SDK := $(CONTAINER_DIR)/google_appengine_1.9.35.zip
 
 $(GAE_SDK):
 	curl -o $@ https://storage.googleapis.com/appengine-sdks/featured/$(@F)
+
 # For configuring the MS
 BUILD_MS := $(CONTAINER_DIR)/ms
-MS_FILES:= $(CONTAINER_DIR)/ms
+CONFIG_DIR:= $(CONTAINER_DIR)/ms
 include configure_ms.mk
 
 build:
@@ -28,7 +29,7 @@ docker_test: up showlogs rm
 up: $(GAE_SDK) build $(CONTAINER_DIR)/ms/app.yaml
 	sudo $(DOCKER_COMPOSE) build
 	sudo $(DOCKER_COMPOSE) up --timeout 1 -d
-	sleep 10
+	sleep 5
 
 stop:
 	sudo $(DOCKER_COMPOSE) stop
