@@ -37,9 +37,9 @@ $(BUILD_MS)/app.yaml: $(MS_FILES)/app.yamlin $(MS_APP_ADMIN_PUBLIC_KEY) $(MS_APP
 		sed -e 's~@MS_APP_NAME@~$(MS_APP_NAME)~g;' \
 				-e 's~@MS_APP_PUBLIC_HOST@~$(MS_APP_PUBLIC_HOST)~g;' \
 				-e 's~@MS_APP_ADMIN_EMAIL@~$(MS_APP_ADMIN_EMAIL)~g;' \
-				-e 's~@MS_APP_ADMIN_PUBLIC_KEY@~$(shell cat $(MS_APP_ADMIN_PUBLIC_KEY) | tr "\n" "@" | sed 's/@/\\n/g')~g;' \
-				-e 's~@MS_APP_PUBLIC_KEY@~$(shell cat $(MS_APP_PUBLIC_KEY) | tr "\n" "@" | sed 's/@/\\n/g')~g;' \
-				-e 's~@MS_APP_PRIVATE_KEY@~$(shell cat $(MS_APP_PRIVATE_KEY) | tr "\n" "@" | sed 's/@/\\n/g')~g;' \
+				-e 's~@MS_APP_ADMIN_PUBLIC_KEY@~$(shell cat $(MS_APP_ADMIN_PUBLIC_KEY) | tr "\n" "@  " | sed 's/@/\\n    /g')~g;' \
+				-e 's~@MS_APP_PUBLIC_KEY@~$(shell cat $(MS_APP_PUBLIC_KEY) | tr "\n" "@" | sed 's/@/\\n    /g')~g;' \
+				-e 's~@MS_APP_PRIVATE_KEY@~$(shell cat $(MS_APP_PRIVATE_KEY) | tr "\n" "@" | sed 's/@/\\n    /g')~g;' \
 				> "$@"
 
 clean_ms:

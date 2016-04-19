@@ -10,5 +10,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
 # Switch to being the syndicate user
 USER syndicate
 
+# Switch to /opt
+WORKDIR /opt
+
 # Run the tests
-CMD /bin/bash /opt/run_syndicate_tests.sh
+CMD [ "/opt/run_syndicate_tests.sh" ]

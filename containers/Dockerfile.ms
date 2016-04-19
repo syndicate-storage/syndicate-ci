@@ -26,5 +26,5 @@ USER syndicate
 RUN mkdir $HOME/datastore
 
 # run the MS under GAE
-CMD $HOME/google_appengine/dev_appserver.py --admin_host=0.0.0.0 --host=0.0.0.0 --storage_path=$HOME/datastore --skip_sdk_update_check=true /usr/src/syndicate/ms
+CMD ["google_appengine/dev_appserver.py","--admin_host=0.0.0.0", "--host=0.0.0.0", "--storage_path=/home/syndicate/datastore", "--skip_sdk_update_check=true", "/usr/src/syndicate/ms"]
 
