@@ -1,0 +1,1 @@
+Acquire::http { Proxy "http://butler.opencloud.cs.arizona.edu:3142"; };

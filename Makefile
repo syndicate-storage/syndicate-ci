@@ -8,7 +8,7 @@ NO_DOCKER_CACHE ?= false
 DOCKER ?= docker
 DOCKER_COMPOSE ?= docker-compose -f $(CONTAINER_DIR)/docker-compose.yml
 
-GAE_SDK := $(CONTAINER_DIR)/google_appengine_1.9.35.zip
+GAE_SDK := $(CONTAINER_DIR)/google_appengine_1.9.36.zip
 
 $(GAE_SDK):
 	curl -o $@ https://storage.googleapis.com/appengine-sdks/featured/$(@F)

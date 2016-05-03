@@ -15,6 +15,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
 WORKDIR $HOME
 COPY $GAE_SDK $GAE_SDK
 RUN unzip -q $GAE_SDK
+RUN rm -f $GAE_SDK
 
 # Expose the MS port
 EXPOSE $MS_PORT

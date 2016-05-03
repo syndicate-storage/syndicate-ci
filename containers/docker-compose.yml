@@ -5,6 +5,9 @@ version: '2'
 services:
 
   test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
     image: syndicate-ci-test
     depends_on:
       - ms
@@ -16,6 +19,9 @@ services:
       - ../results:/opt/results
 
   ms:
+    build:
+      context: .
+      dockerfile: Dockerfile.ms
     image: syndicate-ci-ms
     expose:
       - "8080"
