@@ -18,6 +18,9 @@ BUILD_MS := $(CONTAINER_DIR)/ms
 CONFIG_DIR:= $(CONTAINER_DIR)/ms
 include configure_ms.mk
 
+cleanbuild:
+	sudo docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=true --rm -t syndicate-ci-base $(CONTAINER_DIR)
+
 build:
 	sudo docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-base $(CONTAINER_DIR)
 
@@ -37,11 +40,14 @@ stop:
 rm: stop
 	sudo $(DOCKER_COMPOSE) rm --force
 
-manual_test:
+rmi: rm
+       sudo $(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
+
+manual_test: up
 	sudo $(DOCKER_COMPOSE) run test bash
 
 enter:
-	sudo $(DOCKER) exec -it syndicate_ci_1 bash
+	sudo $(DOCKER) exec -it syndicate-ci-ms bash
 
 showlogs:
 	sudo $(DOCKER_COMPOSE) logs
