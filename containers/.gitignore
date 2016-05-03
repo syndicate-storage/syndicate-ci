@@ -1,5 +1,4 @@
 google_appengine*
-ms/admin_info.py
 ms/app.yaml
 ms/*.pem
 ms/*.pub
