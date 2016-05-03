@@ -14,6 +14,7 @@ services:
     links:
       - ms
     volumes:
+      - ./ms:/opt/ms:ro
       - ../run_syndicate_tests.sh:/opt/run_syndicate_tests.sh:ro
       - ../tests:/opt/tests:ro
       - ../results:/opt/results
@@ -26,5 +27,6 @@ services:
     expose:
       - "8080"
     volumes:
+      - ./ms:/opt/ms:ro
       - ./ms/app.yaml:/usr/src/syndicate/ms/app.yaml:ro
 

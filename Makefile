@@ -37,6 +37,9 @@ stop:
 rm: stop
 	sudo $(DOCKER_COMPOSE) rm --force
 
+manual_test:
+	sudo $(DOCKER_COMPOSE) run test bash
+
 enter:
 	sudo $(DOCKER) exec -it syndicate_ci_1 bash
 
