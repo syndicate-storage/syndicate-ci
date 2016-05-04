@@ -41,7 +41,7 @@ rm: stop
 	sudo $(DOCKER_COMPOSE) rm --force
 
 rmi: rm
-       sudo $(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
+	sudo $(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
 
 manual_test: up
 	sudo $(DOCKER_COMPOSE) run test bash
