@@ -15,7 +15,7 @@ $(GAE_SDK):
 
 # For configuring the MS
 BUILD_MS := $(CONTAINER_DIR)/ms
-CONFIG_DIR:= $(CONTAINER_DIR)/ms
+CONFIG_DIR := $(CONTAINER_DIR)/ms
 include configure_ms.mk
 
 cleanbuild:

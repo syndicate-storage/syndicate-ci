@@ -5,7 +5,9 @@ MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 
 # Install Syndicate UG tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
-    syndicate-ug-tools
+    syndicate-ug-tools \
+    syndicate-rg \
+    syndicate-ag
 
 # Switch to being the syndicate user
 USER syndicate
