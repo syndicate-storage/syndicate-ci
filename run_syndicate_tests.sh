@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 # Runs syndicate tests in PATHDIR, puts TAP results in TESTDIR
 
-PATHDIR=./tests
+TESTDIR=./tests
 RESULTDIR=./results
+OUTPUTDIR=./output
 BASH=/bin/bash
 
-SYNDICATE_ADMIN="syndicate-ms@example.com"
-SYNDICATE_MS="http://ms:8080"
-SYNDICATE_MS_KEYDIR=/opt/ms
-SYNDICATE_MS_ROOT=/opt/ms
-SYNDICATE_PRIVKEY_PATH=./ms_src/admin.pem
+export SYNDICATE_ADMIN="syndicate-ms@example.com"
 
-SYNDICATE_RG_ROOT=/usr/bin/
-SYNDICATE_UG_ROOT=/usr/bin/
-SYNDICATE_AG_ROOT=/usr/bin/
-SYNDICATE_PYTHON_ROOT=/usr/lib/python2.7/dist-packages/
+export SYNDICATE_MS="http://ms:8080"
+export SYNDICATE_MS_KEYDIR=/opt/ms
+export SYNDICATE_MS_ROOT=/opt/ms
+export SYNDICATE_PRIVKEY_PATH=${SYNDICATE_MS_KEYDIR}/admin.pem
 
-SYNDICATE_TOOL=/usr/bin/syndicate
+export SYNDICATE_TOOL=/usr/bin/syndicate
+export SYNDICATE_RG_ROOT=/usr/bin/
+export SYNDICATE_UG_ROOT=/usr/bin/
+export SYNDICATE_AG_ROOT=/usr/bin/
+export SYNDICATE_PYTHON_ROOT=/usr/lib/python2.7/dist-packages/
 
 # Start testing
 echo "Start Time: `date +'%F %T'`"
@@ -27,10 +28,13 @@ echo "Working in: '`pwd`'"
 rm -f ${RESULTDIR}/*.tap
 
 # run the tests
-for test in ${PATHDIR}/*.sh; do
+for test in $(ls ${TESTDIR}/[0-9][0-9][0-9]_*.sh ); do
   testname=${test##*/}
-  echo "Running test: '${test}'"
+  echo "Running test: '${testname}'"
   ${BASH} ${test} > ${RESULTDIR}/${testname%.*}.tap
+  echo "Copying logs..."
+  cp -r /tmp/syndicate-test-*  $OUTPUTDIR
+  chmod a+r -R $OUTPUTDIR
 done
 
 echo "End Time:   `date +'%F %T'`"

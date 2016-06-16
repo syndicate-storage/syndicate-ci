@@ -7,7 +7,9 @@ MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
     syndicate-ug-tools \
     syndicate-rg \
-    syndicate-ag
+    syndicate-ag \
+    syndicatefs \
+    valgrind
 
 # Switch to being the syndicate user
 USER syndicate

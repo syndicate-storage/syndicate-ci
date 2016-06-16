@@ -19,38 +19,42 @@ CONFIG_DIR := $(CONTAINER_DIR)/ms
 include configure_ms.mk
 
 cleanbuild:
-	sudo docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=true --rm -t syndicate-ci-base $(CONTAINER_DIR)
+	docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=true --rm -t syndicate-ci-base $(CONTAINER_DIR)
 
 build:
-	sudo docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-base $(CONTAINER_DIR)
+	docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-base $(CONTAINER_DIR)
 
 tests:
 	bash run_syndicate_tests.sh
 
-docker_test: up showlogs rm
+full_test: docker_test rmi
 
-up: $(GAE_SDK) build $(CONTAINER_DIR)/ms/app.yaml
-	sudo $(DOCKER_COMPOSE) build
-	sudo $(DOCKER_COMPOSE) up --timeout 1 -d
-	sleep 5
+docker_test: up
+	$(DOCKER_COMPOSE) run test /opt/run_syndicate_tests.sh
+
+# sleep is to let the MS start up
+up: $(GAE_SDK) cleanbuild $(CONTAINER_DIR)/ms/app.yaml
+	$(DOCKER_COMPOSE) build
+	$(DOCKER_COMPOSE) up --timeout 1 -d
+	sleep 10
 
 stop:
-	sudo $(DOCKER_COMPOSE) stop
+	$(DOCKER_COMPOSE) stop
 
 rm: stop
-	sudo $(DOCKER_COMPOSE) rm --force
+	$(DOCKER_COMPOSE) rm --force
 
 rmi: rm
-	sudo $(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
+	$(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
 
 manual_test: up
-	sudo $(DOCKER_COMPOSE) run test bash
+	$(DOCKER_COMPOSE) run test bash
 
 enter:
-	sudo $(DOCKER) exec -it syndicate-ci-ms bash
+	$(DOCKER) exec -it syndicate-ci-ms bash
 
 showlogs:
-	sudo $(DOCKER_COMPOSE) logs
+	$(DOCKER_COMPOSE) logs
 
 clean:
 	rm -f $(RESULT_DIR)/*.tap
