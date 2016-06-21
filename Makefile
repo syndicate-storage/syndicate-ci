@@ -3,6 +3,7 @@
 WORKSPACE ?= .
 CONTAINER_DIR ?= ${WORKSPACE}/containers
 RESULT_DIR ?= ${WORKSPACE}/results
+OUTPUT_DIR ?= ${WORKSPACE}/output
 NO_DOCKER_CACHE ?= false
 
 DOCKER ?= docker
@@ -56,7 +57,7 @@ enter:
 showlogs:
 	$(DOCKER_COMPOSE) logs
 
-clean:
+clean: clean_certs
 	rm -f $(RESULT_DIR)/*.tap
-
+	rm -rf $(OUTPUT_DIR)/*
 

@@ -34,7 +34,7 @@ for test in $(ls ${TESTDIR}/[0-9][0-9][0-9]_*.sh ); do
   ${BASH} ${test} > ${RESULTDIR}/${testname%.*}.tap
   echo "Copying logs..."
   cp -r /tmp/syndicate-test-*  $OUTPUTDIR
-  chmod a+r -R $OUTPUTDIR
+  chmod a+rX -R $OUTPUTDIR
 done
 
 echo "End Time:   `date +'%F %T'`"
