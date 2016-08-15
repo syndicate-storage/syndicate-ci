@@ -18,4 +18,4 @@ USER syndicate
 WORKDIR /opt
 
 # Run the tests
-CMD [ "/opt/run_syndicate_tests.sh" ]
+CMD [ "/bin/bash" ]

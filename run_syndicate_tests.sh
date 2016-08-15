@@ -6,18 +6,8 @@ RESULTDIR=./results
 OUTPUTDIR=./output
 BASH=/bin/bash
 
-export SYNDICATE_ADMIN="syndicate-ms@example.com"
-
-export SYNDICATE_MS="http://ms:8080"
-export SYNDICATE_MS_KEYDIR=/opt/ms
-export SYNDICATE_MS_ROOT=/opt/ms
-export SYNDICATE_PRIVKEY_PATH=${SYNDICATE_MS_KEYDIR}/admin.pem
-
-export SYNDICATE_TOOL=/usr/bin/syndicate
-export SYNDICATE_RG_ROOT=/usr/bin/
-export SYNDICATE_UG_ROOT=/usr/bin/
-export SYNDICATE_AG_ROOT=/usr/bin/
-export SYNDICATE_PYTHON_ROOT=/usr/lib/python2.7/dist-packages/
+# bring in config
+source config.sh
 
 # Start testing
 echo "Start Time: `date +'%F %T'`"

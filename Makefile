@@ -17,6 +17,7 @@ $(GAE_SDK):
 # For configuring the MS
 BUILD_MS := $(CONTAINER_DIR)/ms
 CONFIG_DIR := $(CONTAINER_DIR)/ms
+MS_APP_PUBLIC_HOST := ms # name of docker container w/ms in it
 include configure_ms.mk
 
 cleanbuild:
@@ -28,13 +29,16 @@ build:
 tests:
 	bash run_syndicate_tests.sh
 
-full_test: docker_test rmi
+full_test: docker_test docker_logs rmi
 
 docker_test: up
 	$(DOCKER_COMPOSE) run test /opt/run_syndicate_tests.sh
 
+docker_logs:
+	$(DOCKER_COMPOSE) logs -t --no-color ms > ${OUTPUT_DIR}/docker_logs 2>&1
+
 # sleep is to let the MS start up
-up: $(GAE_SDK) cleanbuild $(CONTAINER_DIR)/ms/app.yaml
+up: $(GAE_SDK) build $(CONTAINER_DIR)/ms/app.yaml
 	$(DOCKER_COMPOSE) build
 	$(DOCKER_COMPOSE) up --timeout 1 -d
 	sleep 10
@@ -43,7 +47,7 @@ stop:
 	$(DOCKER_COMPOSE) stop
 
 rm: stop
-	$(DOCKER_COMPOSE) rm --force
+	$(DOCKER_COMPOSE) rm --force --all
 
 rmi: rm
 	$(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
