@@ -17,7 +17,8 @@ $(GAE_SDK):
 # For configuring the MS
 BUILD_MS := $(CONTAINER_DIR)/ms
 CONFIG_DIR := $(CONTAINER_DIR)/ms
-MS_APP_PUBLIC_HOST := ms # name of docker container w/ms in it
+# name of docker container w/ms in it
+MS_APP_PUBLIC_HOST := ms
 include configure_ms.mk
 
 cleanbuild:
@@ -47,10 +48,10 @@ stop:
 	$(DOCKER_COMPOSE) stop
 
 rm: stop
-	$(DOCKER_COMPOSE) rm --force --all
+	-$(DOCKER_COMPOSE) rm --force --all
 
 rmi: rm
-	$(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
+	-$(DOCKER) rmi `docker images | grep "^<none>" | awk '{print $$3}'`
 
 manual_test: up
 	$(DOCKER_COMPOSE) run test bash

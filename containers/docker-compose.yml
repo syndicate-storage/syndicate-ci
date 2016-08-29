@@ -16,6 +16,7 @@ services:
     volumes:
       - ./ms:/opt/ms:ro
       - ../run_syndicate_tests.sh:/opt/run_syndicate_tests.sh:ro
+      - ../config.sh:/opt/config.sh:ro
       - ../tests:/opt/tests:ro
       - ../results:/opt/results
       - ../output:/opt/output
