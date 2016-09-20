@@ -1,6 +1,6 @@
 # Syndicate CI Test Base Dockerfile
 
-FROM ubuntu:14.04.4
+FROM ubuntu:14.04.5
 MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 
 ENV APT_KEY butler_opencloud_cs_arizona_edu_pub.gpg

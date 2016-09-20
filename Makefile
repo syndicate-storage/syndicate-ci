@@ -9,7 +9,7 @@ NO_DOCKER_CACHE ?= false
 DOCKER ?= docker
 DOCKER_COMPOSE ?= docker-compose -f $(CONTAINER_DIR)/docker-compose.yml
 
-GAE_SDK := $(CONTAINER_DIR)/google_appengine_1.9.36.zip
+GAE_SDK := $(CONTAINER_DIR)/google_appengine_1.9.40.zip
 
 $(GAE_SDK):
 	curl -o $@ https://storage.googleapis.com/appengine-sdks/featured/$(@F)
@@ -28,12 +28,12 @@ build:
 	docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-base $(CONTAINER_DIR)
 
 tests:
-	bash run_syndicate_tests.sh
+	bash testwrapper.sh
 
 full_test: docker_test docker_logs rmi
 
 docker_test: up
-	$(DOCKER_COMPOSE) run test /opt/run_syndicate_tests.sh
+	$(DOCKER_COMPOSE) run test /opt/testwrapper.sh
 
 docker_logs:
 	$(DOCKER_COMPOSE) logs -t --no-color ms > ${OUTPUT_DIR}/docker_logs 2>&1

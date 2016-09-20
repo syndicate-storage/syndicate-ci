@@ -18,13 +18,12 @@ echo "Working in: '`pwd`'"
 rm -f ${RESULTDIR}/*.tap
 
 # run the tests
-for test in $(ls ${TESTDIR}/[0-9][0-9][0-9]_*.sh ); do
+for test in $(ls ${TESTDIR}/*.yml ); do
   testname=${test##*/}
   echo "Running test: '${testname}'"
-  ${BASH} ${test} > ${RESULTDIR}/${testname%.*}.tap
+  python ./testrunner.py -d -t ${RESULTDIR}/${testname%.*}.tap ${test} ${OUTPUTDIR}/${testname%.*}.out
   echo "Copying logs..."
-  cp -r /tmp/syndicate-test-*  $OUTPUTDIR
-  chmod a+rX -R $OUTPUTDIR
+  cp -r /tmp/synd-* $OUTPUTDIR
 done
 
 echo "End Time:   `date +'%F %T'`"

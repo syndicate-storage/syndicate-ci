@@ -4,7 +4,7 @@ FROM syndicate-ci-base
 MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 
 ENV MS_PORT 8080
-ENV GAE_SDK google_appengine_1.9.36.zip
+ENV GAE_SDK google_appengine_1.9.40.zip
 
 # Install Syndicate MS
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
