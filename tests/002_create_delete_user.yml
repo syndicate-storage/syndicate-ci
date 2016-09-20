@@ -1,0 +1,51 @@
+---
+
+- name: setup_create_delete_user
+  type: setup
+  tmpdirs:
+    - name: 002_create_delete_user
+      varname: config_dir
+  randnames:
+    - random_email
+  vars:
+    - name: config_path
+      value: $config_dir/syndicate.conf
+    - name: random_user
+      value: $random_email@gmail.com
+    - name: random_admin
+      value: $random_email@admin.com
+
+
+- name: create_delete_user_test
+  type: sequential
+  tasks:
+
+    - name: setup
+      command: $SYNDICATE_TOOL --trust_public_key -c "$config_path" --debug setup "$SYNDICATE_ADMIN" "$SYNDICATE_PRIVKEY_PATH" "$SYNDICATE_MS"
+
+    - name: create normal user
+      command: $SYNDICATE_TOOL -c "$config_path" create_user "$random_user" auto max_volumes=20 max_gateways=21
+
+    - name: create admin user
+      command: $SYNDICATE_TOOL -c "$config_path" create_user "$random_admin" auto max_volumes=20 max_gateways=21 is_admin=True
+
+    - name: try to create duplicate user
+      command: $SYNDICATE_TOOL -c "$config_path" create_user "$random_user" auto 
+      returncode: 1
+
+    - name: try to create with invalid email/name
+      command: $SYNDICATE_TOOL -c "$config_path" create_user "asdf.not.an.email" auto
+      returncode: 1
+
+    - name: create private key for user
+      command: openssl genrsa 4096 > "$config_dir/$random_user.au.pkey"
+
+    - name: create user with existing private key
+      command: $SYNDICATE_TOOL -c "$config_path" create_user "$random_user.au" "$config_path/$random_user.au.pkey"
+
+    - name: delete user with existing private key
+      command: $SYNDICATE_TOOL -c "$config_path" delete_user "$random_user.au"
+
+    - name: list users
+      command: $SYNDICATE_TOOL -c "$config_path" list_users
+

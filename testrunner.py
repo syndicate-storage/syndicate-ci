@@ -529,7 +529,7 @@ class TaskBlocksRunner():
                     for rfile in taskb['randfiles']:
                         randfile(rfile['parent'], rfile['name'], rfile['size'])
 
-                if 'randname' in taskb:
+                if 'randnames' in taskb:
                     for r_name in taskb['randnames']:
                         randname(r_name)
 

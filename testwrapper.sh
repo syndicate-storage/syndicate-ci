@@ -22,9 +22,11 @@ for test in $(ls ${TESTDIR}/*.yml ); do
   testname=${test##*/}
   echo "Running test: '${testname}'"
   python ./testrunner.py -d -t ${RESULTDIR}/${testname%.*}.tap ${test} ${OUTPUTDIR}/${testname%.*}.out
-  echo "Copying logs..."
-  cp -r /tmp/synd-* $OUTPUTDIR
 done
+
+echo "Copying logs..."
+cp -r /tmp/synd-* $OUTPUTDIR
+chmod -R a+rwx $OUTPUTDIR
 
 echo "End Time:   `date +'%F %T'`"
 end_t=`date +%s`
