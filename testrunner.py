@@ -158,20 +158,27 @@ def newvar(name, value):
 
     global r_vars
 
-    rv = re.compile('\$(\w+)')  # capture just the variable
+    r_vars[name] = replace_vars(value)
 
-    rv_matches = rv.findall(value)
+    logger.debug("Created newvar '%s' with value '%s'" % (name, value))
+
+
+def replace_vars(string):
+
+    global r_vars
+
+    rv = re.compile('\$(\w+)')  # capture just the variable name
+
+    rv_matches = rv.findall(string)
     for match in rv_matches:
         if match in r_vars:
             rr = re.compile('\$%s' % match)
-            value = rr.sub(r_vars[match], value, count=1)
+            string = rr.sub(r_vars[match], string, count=1)
         else:
-            logger.error("Unknown variable: '$%s' when creating newvar '%s'" %
-                         (match, name))
+            logger.error("Unknown variable: '$%s' in '%s'" %
+                         (match, string))
 
-    r_vars[name] = value
-
-    logger.debug("Created newvar '%s' with value '%s'" % (name, value))
+    return string
 
 
 class CommandRunner():
@@ -232,19 +239,8 @@ class CommandRunner():
 
         global r_vars
 
-        command = self.c['command']
-
         # replace variables
-        rv = re.compile('\$(\w+)')  # capture just the variable
-
-        rv_matches = rv.findall(command)
-        for match in rv_matches:
-            if match in r_vars:
-                rr = re.compile('\$%s' % match)
-                command = rr.sub(r_vars[match], command, count=1)
-            else:
-                logger.error("Task '%s' has unknown variable: '$%s'" %
-                             (self.c['name'], match))
+        command = replace_vars(self.c['command'])
 
         logger.debug("Running Task '%s': `%s`" % (self.c['name'], command))
 
@@ -345,6 +341,24 @@ class CommandRunner():
                 stderr_str += dq_item['line']
             else:
                 raise Exception("Unknown stream: %s" % dq_item['stream'])
+
+        if 'saveout' in self.c:
+            so_fname = replace_vars(self.c['saveout'])
+            so_f = open(so_fname, 'w')
+            so_f.write(stdout_str)
+            so_f.close()
+
+            logger.debug("Saved stdout of task '%s' to '%s'" %
+                         (self.c['name'], so_fname))
+
+        if 'saveerr' in self.c:
+            se_fname = replace_vars(self.c['saveerr'])
+            se_f = open(se_fname, 'w')
+            se_f.write(stdout_str)
+            se_f.close()
+
+            logger.debug("Saved stderr of task '%s' to '%s'" %
+                         (self.c['name'], se_fname))
 
         # checks against stdout/stderr are optional
         if 'outfile' in self.c:
