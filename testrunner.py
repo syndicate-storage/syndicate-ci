@@ -448,17 +448,17 @@ class RunParallel():
         self.taskblock_name = taskblock['name']
         self.tap_writer = tap_writer
 
-    def loop_tasks(self, loop_var, taskblock):
+    def loop_tasks(self, varname, taskblock):
 
         global loop_vars
 
         tasks = []
 
         for task in taskblock['tasks']:
-            for index, loop_var in enumerate(loop_vars[loop_var]):
+            for index, loop_var in enumerate(loop_vars[varname]):
 
                 modified_task = task.copy()
-                modified_task['command'] = task['command'].replace("$loopvar", loop_var)
+                modified_task['command'] = task['command'].replace("$loop_var", loop_var)
                 for key in ['name', 'saveout', 'saveerr', ]:
                     if key in task:
                         modified_task[key] = "%s-%d" % (task[key], index)

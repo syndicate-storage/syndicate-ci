@@ -50,6 +50,7 @@
   tasks:
     - name: start RG
       command: $rg_path -c "$syndicate_conf" -d2 -f -u $SYNDICATE_ADMIN -v $test_volume -g $test_rg
+      returncode: 0
 
 - name: setup UGs
   type: sequential
@@ -68,12 +69,12 @@
 
 - name: run put/cat tests
   type: sequential
-  loop_var: test_fnames
+  loop_on: test_fnames
   tasks:
     - name: test put
-      command: $put_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $put_ug $local_file $loopvar
+      command: $put_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $put_ug $local_file $loop_var
 
     - name: test cat
-      command: $cat_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $cat_ug $loopvar
+      command: $cat_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $cat_ug $loop_var
       outcheck: $local_file
 
