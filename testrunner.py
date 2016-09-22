@@ -155,7 +155,7 @@ def randname(name, size=12, varname=None):
     logger.debug("Created randname '%s' with value '%s'" % (varname, r_name))
 
 
-def randarray(name, quantity, size=12, varname=None):
+def randloop(name, quantity, size=12, varname=None):
 
     global loop_vars
 
@@ -256,6 +256,7 @@ class CommandRunner():
 
         # replace variables
         command = replace_vars(self.c['command'])
+        self.c['repl_command'] = command
 
         logger.debug("Running Task '%s': `%s`" % (self.c['name'], command))
 
@@ -377,29 +378,42 @@ class CommandRunner():
                          (self.c['name'], se_fname))
 
         # checks against stdout/stderr are optional
-        if 'outfile' in self.c:
-            if stdout_str == open(self.c['outfile']).read():
-                logger.debug("Task '%s' stdout matches contents of %s" %
-                             (self.c['name'], self.c['outfile']))
-            else:
-                outfile_fail = ("Task '%s' stdout does not match contents of %s" %
-                                (self.c['name'], self.c['outfile']))
-                logger.error(outfile_fail)
-                failures.append(outfile_fail)
+        if 'outcheck' in self.c:
+            outcheck_fname = replace_vars(self.c['outcheck'])
+            if not os.path.isfile(outcheck_fname):
+                logger.error("Task '%s', nonexistant outcheck file '%s'" %
+                             (self.c['name'], outcheck_fname))
+                sys.exit(1)
 
-        if 'errfile' in self.c:
-            if stderr_str == open(self.c['errfile']).read():
-                logger.debug("Task '%s' stderr matches contents of %s"
-                             % (self.c['name'], self.c['errfile']))
+            if stdout_str == open(outcheck_fname).read():
+                logger.debug("Task '%s' stdout matches contents of '%s'" %
+                             (self.c['name'], outcheck_fname))
             else:
-                errfile_fail = ("Task '%s' stderr does not match contents of %s" %
-                                (self.c['name'], self.c['errfile']))
-                logger.error(errfile_fail)
-                failures.append(errfile_fail)
+                outcheck_fail = ("Task '%s' stdout does not match contents of '%s'" %
+                                 (self.c['name'], outcheck_fname))
+                logger.error(outcheck_fail)
+                failures.append(outcheck_fail)
+
+        if 'errcheck' in self.c:
+            errcheck_fname = replace_vars(self.c['errcheck'])
+            if not os.path.isfile(errcheck_fname):
+                logger.error("Task '%s', nonexistant errcheck file '%s'" %
+                             (self.c['name'], errcheck_fname))
+                sys.exit(1)
+
+            if stderr_str == open(errcheck_fname).read():
+                logger.debug("Task '%s' stderr matches contents of '%s'"
+                             % (self.c['name'], errcheck_fname))
+            else:
+                errcheck_fail = ("Task '%s' stderr does not match contents of '%s'" %
+                                 (self.c['name'], errcheck_fname))
+                logger.error(errcheck_fail)
+                failures.append(errcheck_fail)
 
         if tap_writer:
 
-            yaml_data = {"duration_ms": "%.6f" % self.duration(1000)}
+            yaml_data = {"duration_ms": "%.6f" % self.duration(1000),
+                         "command": self.c['repl_command']}
             testname = "%s : %s" % (self.taskb_name, self.c['name'])
 
             if failures:
@@ -448,8 +462,8 @@ class RunParallel():
             for index, loop_var in enumerate(loop_vars[loop_var]):
 
                 modified_task = task.copy()
-                modified_task['command'] = task['command'].replace("$LOOPVAR", loop_var)
-                for key in ['name', 'saveout', 'saveerr', 'outfile', 'errfile']:
+                modified_task['command'] = task['command'].replace("$loopvar", loop_var)
+                for key in ['name', 'saveout', 'saveerr', ]:
                     if key in task:
                         modified_task[key] = "%s-%d" % (task[key], index)
 
@@ -512,10 +526,11 @@ class TAPWriter():
     def record_test(self, success, testname, extra_data=None):
 
         global args
+        global r_vars
 
         self.current_test += 1
 
-        testdesc = "%s : %s" % (args.tasks_file.name, testname)
+        testdesc = "%s : %s" % (r_vars['taskfile'], testname)
 
         if success:
             self.tap_file.write("ok %d - %s\n" % (self.current_test, testdesc))
@@ -574,7 +589,7 @@ class TaskBlocksRunner():
                                  (req_key, taskb))
                     sys.exit(1)
 
-            if taskb['type'] not in ["setup", "sequential", "parallel", ]:
+            if taskb['type'] not in ["setup", "daemon", "sequential", "parallel", ]:
                 logger.error("Unknown task type '%s' in task block: %s" %
                              (taskb['type'], taskb))
                 sys.exit(1)
@@ -594,30 +609,34 @@ class TaskBlocksRunner():
                     for rname in taskb['randnames']:
                         randname(rname)
 
-                if 'randarray' in taskb:
-                    for rarray in taskb['randarray']:
-                        randarray(rarray['name'], rarray['size'])
+                if 'randloop' in taskb:
+                    for rloop in taskb['randloop']:
+                        randloop(rloop['name'], rloop['quantity'])
 
                 if 'vars' in taskb:
                     for v_name in taskb['vars']:
                         newvar(v_name['name'], v_name['value'])
 
-                if 'tasks' in taskb:
-                    daemon_runner = RunDaemon(taskb)
-                    self.daemons.append(
-                        {"name": taskb['name'], "runner": daemon_runner})
+            elif taskb['type'] == "daemon":
+                daemon_runner = RunDaemon(taskb, tap_writer)
+                num_tests += daemon_runner.num_tests()
+                self.runners.append(
+                    {"name": taskb['name'], "runner": daemon_runner,
+                     "type": taskb['type']})
 
             elif taskb['type'] == "sequential":
                 seq_runner = RunSequential(taskb, tap_writer)
                 num_tests += seq_runner.num_tests()
                 self.runners.append(
-                    {"name": taskb['name'], "runner": seq_runner})
+                    {"name": taskb['name'], "runner": seq_runner,
+                     "type": taskb['type']})
 
             elif taskb['type'] == "parallel":
                 par_runner = RunParallel(taskb, tap_writer)
                 num_tests += par_runner.num_tests()
                 self.runners.append(
-                    {"name": taskb['name'], "runner": par_runner})
+                    {"name": taskb['name'], "runner": par_runner,
+                     "type": taskb['type']})
 
             else:
                 logger.error("Unknown task type '%s' in task block: %s" %
@@ -626,16 +645,14 @@ class TaskBlocksRunner():
 
         tap_writer.write_header(num_tests)
 
-    def start_daemons(self):
-
-        for daemon in self.daemons:
-            daemon['runner'].run()
-
     def run_task_blocks(self):
 
         for runner in self.runners:
             runner['runner'].run()
-            self.runb_out.append(runner['runner'].run_out)
+            if runner['type'] != "daemon":
+                self.runb_out.append(runner['runner'].run_out)
+            else:
+                self.daemons.append(runner)
 
     def stop_daemons(self):
 
@@ -663,6 +680,7 @@ if __name__ == "__main__":
     import_env()
 
     global args
+    global r_vars
     global loop_vars
 
     loop_vars = {}
@@ -674,9 +692,14 @@ if __name__ == "__main__":
     start_dt = datetime.datetime.utcfromtimestamp(start_t)
     logger.debug("Started at %s" % start_dt.strftime(args.time_format))
 
+    tasks_file_abspath = os.path.abspath(args.tasks_file.name)
+    r_vars['taskdir'] = os.path.dirname(tasks_file_abspath)
+    r_vars['taskfile'] = os.path.basename(tasks_file_abspath)
+
+    logger.debug("Running tasks from file '%s'" % tasks_file_abspath)
+
     tbr = TaskBlocksRunner(args.tasks_file, args.tap_file)
 
-    tbr.start_daemons()
     tbr.run_task_blocks()
     tbr.stop_daemons()
     tbr.print_timesorted(args.output_file)
