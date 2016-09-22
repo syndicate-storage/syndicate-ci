@@ -24,11 +24,11 @@
     - name: rg_driver
       value: $SYNDICATE_PYTHON_ROOT/syndicate/rg/drivers/disk
     - name: rg_path
-      value: $SYNDICATE_PYTHON_ROOT/syndicate-rg
+      value: $SYNDICATE_RG_ROOT/syndicate-rg
     - name: put_path
-      value: $SYNDICATE_PYTHON_ROOT/syndicate-put
+      value: $SYNDICATE_UG_ROOT/syndicate-put
     - name: cat_path
-      value: $SYNDICATE_PYTHON_ROOT/syndicate-cat
+      value: $SYNDICATE_UG_ROOT/syndicate-cat
 
 - name: config
   type: sequential
