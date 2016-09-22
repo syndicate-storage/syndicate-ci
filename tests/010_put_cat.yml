@@ -13,9 +13,10 @@
     - output_path
   randfiles:
     - name: local_file
+      path: $config_dir/local_file
       size: 16384
   randloop:
-    - name: testfiles
+    - name: test_fnames
       quantity: 10
   vars:
     - name: syndicate_conf
@@ -68,7 +69,7 @@
 
 - name: run put/cat tests
   type: sequential
-  loop_var: testfiles
+  loop_var: test_fnames
   tasks:
     - name: test put
       command: $put_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $put_ug $local_file $loopvar

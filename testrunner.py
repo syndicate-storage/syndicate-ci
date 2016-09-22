@@ -115,31 +115,27 @@ def randstring(size):
     return "".join([random.choice(pattern) for _ in range(size)])
 
 
-def randfile(parent, name, size=4096, varname=None):
+def randfile(name, path, size=4096, varname=None):
 
     global r_vars
 
-    if parent not in r_vars:
-        logger.error("Unknown parent directory '%s' for file '%s'" %
-                     (parent, name))
-        sys.exit(1)
+    exp_path = replace_vars(path)
 
-    if not os.path.isdir(r_vars[parent]):
+    parentdir = os.path.dirname(exp_path)
+    if not os.path.isdir(parentdir):
         logger.error("Parent '%s' is not a directory for file '%s'" %
-                     (r_vars[parent], name))
+                     (parentdir, exp_path))
         sys.exit(1)
 
-    path = r_vars[parent] + "/" + name
-
-    r_file = open(path, 'w')
+    r_file = open(exp_path, 'w')
     r_file.write(randstring(size))
     r_file.close()
 
     if varname is None:
         varname = name
-    r_vars[varname] = path
+    r_vars[varname] = exp_path
 
-    logger.debug("Created randfile '%s' at '%s' of size %d" % (varname, path, size))
+    logger.debug("Created randfile '%s' at '%s' of size %d" % (varname, exp_path, size))
 
 
 def randname(name, size=12, varname=None):
@@ -603,7 +599,7 @@ class TaskBlocksRunner():
 
                 if 'randfiles' in taskb:
                     for rfile in taskb['randfiles']:
-                        randfile(rfile['parent'], rfile['name'], rfile['size'])
+                        randfile(rfile['name'], rfile['path'], rfile['size'])
 
                 if 'randnames' in taskb:
                     for rname in taskb['randnames']:
