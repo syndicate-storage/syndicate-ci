@@ -33,7 +33,8 @@ logger = logging.getLogger()
 
 # globals
 global args
-global r_vars  # replacement vars
+global r_vars  # dict of replacement vars
+global loop_vars  # dict of arrays of vars to loop tasks on
 
 
 def parse_args():
@@ -109,6 +110,11 @@ def tmpdir(name, varname=None):
     logger.debug("Created tmpdir '%s', with path: '%s'" % (varname, testdir))
 
 
+def randstring(size):
+    pattern = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+    return "".join([random.choice(pattern) for _ in range(size)])
+
+
 def randfile(parent, name, size=4096, varname=None):
 
     global r_vars
@@ -126,11 +132,7 @@ def randfile(parent, name, size=4096, varname=None):
     path = r_vars[parent] + "/" + name
 
     r_file = open(path, 'w')
-
-    pattern = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-    randstring = "".join([random.choice(pattern) for _ in range(size)])
-
-    r_file.write(randstring)
+    r_file.write(randstring(size))
     r_file.close()
 
     if varname is None:
@@ -144,14 +146,27 @@ def randname(name, size=12, varname=None):
 
     global r_vars
 
-    pattern = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-    r_name = "%s-%s" % (name, "".join([random.choice(pattern) for _ in range(size)]))
+    r_name = "%s-%s" % (name, randstring(size))
 
     if varname is None:
         varname = name
     r_vars[varname] = r_name
 
     logger.debug("Created randname '%s' with value '%s'" % (varname, r_name))
+
+
+def randarray(name, quantity, size=12, varname=None):
+
+    global loop_vars
+
+    vararray = []
+
+    for i in xrange(0, quantity):
+        vararray.append("%s-%s" % (name, randstring(size)))
+
+    loop_vars[name] = vararray
+
+    logger.debug("Created loop_var '%s' with %d items" % (name, quantity))
 
 
 def newvar(name, value):
@@ -168,8 +183,8 @@ def replace_vars(string):
     global r_vars
 
     rv = re.compile('\$(\w+)')  # capture just the variable name
-
     rv_matches = rv.findall(string)
+
     for match in rv_matches:
         if match in r_vars:
             rr = re.compile('\$%s' % match)
@@ -190,7 +205,7 @@ class CommandRunner():
     def __init__(self, cmd_desc, taskb_name):
 
         self.c = {}
-        self.p = {}
+        self.p = None
         self.out_th = {}
         self.err_th = {}
         self.start_t = None
@@ -342,6 +357,7 @@ class CommandRunner():
             else:
                 raise Exception("Unknown stream: %s" % dq_item['stream'])
 
+        # saving stdout/stderr is optional
         if 'saveout' in self.c:
             so_fname = replace_vars(self.c['saveout'])
             so_f = open(so_fname, 'w')
@@ -384,12 +400,13 @@ class CommandRunner():
         if tap_writer:
 
             yaml_data = {"duration_ms": "%.6f" % self.duration(1000)}
+            testname = "%s : %s" % (self.taskb_name, self.c['name'])
 
             if failures:
                 yaml_data["failures"] = failures
-                tap_writer.record_test(False, self.c['name'], yaml_data)
+                tap_writer.record_test(False, testname, yaml_data)
             else:
-                tap_writer.record_test(True, self.c['name'], yaml_data)
+                tap_writer.record_test(True, testname, yaml_data)
 
         return {"failures": failures, "q": self.q}
 
@@ -398,16 +415,47 @@ class RunParallel():
 
     def __init__(self, taskblock, tap_writer=None):
 
+        global loop_vars
+
         self.runners = []
         self.run_out = []
+        self.tasks = []
 
         if 'tasks' not in taskblock:
-            logger.error("No tasks in taskblock '%s'" % name)
-            os.exit(1)
+            logger.error("No tasks in taskblock '%s'" % taskblock['name'])
+            sys.exit(1)
 
-        self.tasks = taskblock['tasks']
+        if 'loop_on' in taskblock:
+            if taskblock['loop_on'] in loop_vars:
+                self.tasks = self.loop_tasks(taskblock['loop_on'], taskblock)
+            else:
+                logger.error("loop_on array '%s' is unknown in taskblock '%s'" %
+                             (taskblock['loop_on'], taskblock['name']))
+                sys.exit(1)
+        else:
+            self.tasks = taskblock['tasks']
+
         self.taskblock_name = taskblock['name']
         self.tap_writer = tap_writer
+
+    def loop_tasks(self, loop_var, taskblock):
+
+        global loop_vars
+
+        tasks = []
+
+        for task in taskblock['tasks']:
+            for index, loop_var in enumerate(loop_vars[loop_var]):
+
+                modified_task = task.copy()
+                modified_task['command'] = task['command'].replace("$LOOPVAR", loop_var)
+                for key in ['name', 'saveout', 'saveerr', 'outfile', 'errfile']:
+                    if key in task:
+                        modified_task[key] = "%s-%d" % (task[key], index)
+
+                tasks.append(modified_task)
+
+        return tasks
 
     def num_tests(self):
         return len(self.tasks)
@@ -461,19 +509,18 @@ class TAPWriter():
         self.tap_file.write("TAP version 13\n")
         self.tap_file.write("1..%d\n" % num_tests)
 
-    def record_test(self, success, comment="", extra_data=None):
+    def record_test(self, success, testname, extra_data=None):
+
+        global args
 
         self.current_test += 1
 
-        suffix = ""
-
-        if comment:
-            suffix = " # " + str(comment)
+        testdesc = "%s : %s" % (args.tasks_file.name, testname)
 
         if success:
-            self.tap_file.write("ok %d%s\n" % (self.current_test, suffix))
+            self.tap_file.write("ok %d - %s\n" % (self.current_test, testdesc))
         else:
-            self.tap_file.write("not ok %d%s\n" % (self.current_test, suffix))
+            self.tap_file.write("not ok %d - %s\n" % (self.current_test, testdesc))
 
         if extra_data:
 
@@ -544,8 +591,12 @@ class TaskBlocksRunner():
                         randfile(rfile['parent'], rfile['name'], rfile['size'])
 
                 if 'randnames' in taskb:
-                    for r_name in taskb['randnames']:
-                        randname(r_name)
+                    for rname in taskb['randnames']:
+                        randname(rname)
+
+                if 'randarray' in taskb:
+                    for rarray in taskb['randarray']:
+                        randarray(rarray['name'], rarray['size'])
 
                 if 'vars' in taskb:
                     for v_name in taskb['vars']:
@@ -612,6 +663,9 @@ if __name__ == "__main__":
     import_env()
 
     global args
+    global loop_vars
+
+    loop_vars = {}
 
     if args.debug:
         logger.setLevel(logging.DEBUG)

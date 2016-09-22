@@ -54,7 +54,7 @@
 
     - name: create user list (should not have removed users)
       command: $SYNDICATE_TOOL -c "$syndicate_conf" list_users
-      saveout: $config_dir/post_remove_userlist
+      saveout: $config_dir/post_remove_list_users
 
     - name: check userlist for normal user
       command: grep "$random_user" $config_dir/post_remove_list_users
