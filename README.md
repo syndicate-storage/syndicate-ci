@@ -28,46 +28,92 @@ commands in `output`
 Add tests to the `tests` folder, named in the format `###_description.yml`,
 using the test syntax specified below.
 
+
+### testrunner.py command
+
+```
+$ python testrunner.py -h
+usage: testrunner.py [-h] [-d] [-i] [-t TAP_FILE] [-f TIME_FORMAT]
+                     tasks_file output_file
+
+positional arguments:
+  tasks_file            YAML tasks input filename
+  output_file           muxed output/error filename
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -d, --debug           print debugging info
+  -i, --immediate       immediately print subprocess stdout/err
+  -t TAP_FILE, --tap_file TAP_FILE
+                        TAP output filename
+  -f TIME_FORMAT, --time_format TIME_FORMAT
+                        specify a strftime() format
+```
+
 ## Tests file syntax
 
 The syntax of the testing files has two block types, `setup` and `tasks`.
 
-### Setup blocks
+### Setup Blocks
 
 ```
-
-
+- name: setup_block
+  type: setup
+  tmpdirs:
+    - name: myconfig
+      varname: config
+  randnames:
+    - myvar
+    - thatvar
+  vars:
+    - name: config_dir
+      value: "$config/"
+  randloop:
+    - name: rand_ex
+      quantity: 4
+  seqloop:
+    - name: seq_ex
+      quantity: 5
+      step: 1
+      start: 14
+  valueloop:
+    - name: val_ex
+      values:
+        - larry
+        - moe
+        - curly
 ```
-
 
 Setup is used to define variables, create testing directories, and files with
 random contents.
 
+#### Variables
+
 There are two types of variables, scalars and arrays.  Scalars can be used in a
 variety of contexts, arrays can only be used with the `loop_on` construct for
-task blocks. Scalars are accessed with the familiar `$var_name` syntax.
+task blocks.
 
-Scalars:
+Scalars are accessed using `$var_name` or `${var_name}` syntax - the latter is
+required if you have a word character immediately next to the variable.   
+
+*Scalars:*
 
 `tmpdirs` - Creates temporary directories prefixed with `name`, and assigned to
-variable `varname`
-
-`randfiles` - Creates a file at `path` with random contents that is `size`
-bytes long.  Path specification can include other variables.
+variable `varname`, in the system `/tmp` directory.
 
 `randnames` - From the `name` given, assign a value `name-<random characters>`
 
 `vars` - Assign `name` a value `value`.  `value` can include other variables.
 
-Arrays:
+*Arrays:*
 
 `randloop` - loop version of `randnames` - generate `quantity` random names in
 an array
 
-`sequenceloop` - generate `quantity` numbers, with a selectable `start`
+`seqloop` - generate `quantity` numbers, with a selectable `start`
 (default is `0`) and step (default is `1`) size.
 
-`valuesloop` - use the `values` list supplied as an array
+`valueloop` - use the `values` list supplied as an array
 
 Note that while `setup` value assignments can be used immediately, they always
 are evaluated in groups in the order shown above within a setup block.  For
@@ -76,7 +122,7 @@ work, but the opposite won't.  If you need to get around this, make multiple
 setup blocks.
 
 
-### Special Variables
+#### Special Variables
 
 There are some special variables that are set:
 
@@ -95,6 +141,28 @@ Within a task:
  - `$task_name` - name of the current task
 
 ### Task blocks
+
+```
+- name: seqblock 
+  type: sequential
+  tasks:
+    - name: exits_one
+      command: failing command
+      exit: 1
+      saveout: $config/exit_one
+      saveerr: $config/exit_one
+    - name: check_output
+      command: ./delay.sh bat
+      checkout: ${tasksf_dir}/baz.out
+      checkerr: ${tasksf_dir}/baz.err
+
+- name: parloopblock
+  type: parallel
+  loop_on: val_ex
+  tasks:
+   - name: echo_names
+     command: echo $loop_var
+```
 
 Task blocks are used to run commands come in 3 types, `sequential`, `parallel`,
 and `daemon`.
@@ -125,7 +193,7 @@ There are two variables set each time the loop is run, `$loop_var` and
 `$loop_index`, which correspondingly have a value from the array and the
 current loop number (starting at 0).
 
-### Command Tests
+#### Command Tests
 
 `exit` - The exit code that the command should exit with, if it's not the
 default of `0`.  Fail test if the command's exit code is not this value, or if
@@ -136,7 +204,4 @@ contents of a file. Fail test if it contents don't match.
 
 `saveout` and `saveerr` - not tests, but these save the `stdout` and
 `stderr` streams to a file.  Doesn't affect job success/failure.
-
-### Output
-
 

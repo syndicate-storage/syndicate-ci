@@ -115,30 +115,6 @@ def randstring(size):
     return "".join([random.choice(pattern) for _ in range(size)])
 
 
-def randfile(name, path, size=4096, varname=None):
-
-    global r_vars
-
-    exp_path = replace_vars(path)
-
-    parentdir = os.path.dirname(exp_path)
-    if not os.path.isdir(parentdir):
-        logger.error("Parent '%s' is not a directory for randfile '%s'" %
-                     (parentdir, exp_path))
-        sys.exit(1)
-
-    r_file = open(exp_path, 'w')
-    r_file.write(randstring(size))
-    r_file.close()
-
-    if varname is None:
-        varname = name
-    r_vars[varname] = exp_path
-
-    logger.debug("Created randfile '%s' at '%s' of size %d" %
-                 (varname, exp_path, size))
-
-
 def randname(name, size=12, varname=None):
 
     global r_vars
@@ -171,27 +147,27 @@ def randloop(name, quantity, size=12, varname=None):
                  (varname, quantity))
 
 
-def sequenceloop(name, quantity, start=0, step=1, varname=None):
+def seqloop(name, quantity, start=0, step=1, varname=None):
 
     global loop_vars
 
     if varname is None:
         varname = name
 
-    loop_vars[varname] = range(start, quantity, step)
+    loop_vars[varname] = range(start, start + quantity * step, step)
 
     logger.debug("Created sequential loop_var '%s' with %d items" %
                  (varname, quantity))
 
 
-def valuesloop(name, values, varname=None):
+def valueloop(name, values, varname=None):
 
     global loop_vars
 
     if varname is None:
         varname = name
 
-    loop_vars[varname] = list(itertools.chain.from_iterable(values))
+    loop_vars[varname] = values
 
     logger.debug("Created values loop_var '%s' with %d items" %
                  (varname, len(loop_vars[varname])))
@@ -210,12 +186,24 @@ def replace_vars(string):
 
     global r_vars
 
-    rv = re.compile('\$(\w+)')  # capture just the variable name
-    rv_matches = rv.findall(string)
+    # two captures, on space/word boundaries, one with explicit {}'s
+    rsv = re.compile('(?:\W|^)\$(\w+)(?:\W|$)')
+    rsv_matches = rsv.findall(string)
 
-    for match in rv_matches:
+    for match in rsv_matches:
         if match in r_vars:
             rr = re.compile('\$%s' % match)
+            string = rr.sub(r_vars[match], string, count=1)
+        else:
+            logger.error("Unknown variable: '$%s' in '%s'" %
+                         (match, string))
+
+    rcv = re.compile('\$\{(\w+)\}')
+    rcv_matches = rcv.findall(string)
+
+    for match in rcv_matches:
+        if match in r_vars:
+            rr = re.compile('\$\{%s\}' % match)
             string = rr.sub(r_vars[match], string, count=1)
         else:
             logger.error("Unknown variable: '$%s' in '%s'" %
@@ -377,7 +365,7 @@ class CommandRunner():
                          (self.c['name'], self.p.returncode))
         else:
             exit_fail = ("Task '%s' incorrect exit: %s, expecting %s" %
-                            (self.c['name'], self.p.returncode, exit))
+                         (self.c['name'], self.p.returncode, exit))
             logger.error(exit_fail)
             failures.append(exit_fail)
 
@@ -503,16 +491,18 @@ class RunParallel():
     def loop_tasks(self, varname, taskblock):
 
         global loop_vars
+        global r_vars
 
         tasks = []
 
         for task in taskblock['tasks']:
             for index, loop_var in enumerate(loop_vars[varname]):
 
+                r_vars['loop_index'] = str(index)
+                r_vars['loop_var'] = str(loop_var)
+
                 modified_task = task.copy()
-                temp_cmd = task['command'].replace("$loop_var", loop_var)
-                modified_task['command'] = temp_cmd.replace("$loop_index",
-                                                            str(index))
+                modified_task['command'] = replace_vars(task['command'])
 
                 for key in ['name', 'saveout', 'saveerr', ]:
                     if key in task:
@@ -687,10 +677,6 @@ class TaskBlocksRunner():
             for tdir in setupb['tmpdirs']:
                 tmpdir(tdir['name'], tdir['varname'])
 
-        if 'randfiles' in setupb:
-            for rfile in setupb['randfiles']:
-                randfile(rfile['name'], rfile['path'], rfile['size'])
-
         if 'randnames' in setupb:
             for rname in setupb['randnames']:
                 randname(rname)
@@ -705,10 +691,19 @@ class TaskBlocksRunner():
 
         if 'seqloop' in setupb:
             for sloop in setupb['seqloop']:
-                randloop(sloop['name'], sloop['quantity'])
+
+                start = 0
+                step = 1
+
+                if sloop['start']:
+                    start = sloop['start']
+                if sloop['step']:
+                    step = sloop['step']
+
+                seqloop(sloop['name'], sloop['quantity'], start, step)
 
         if 'valueloop' in setupb:
-            for vloop in setupb['arrayloop']:
+            for vloop in setupb['valueloop']:
                 for req_key in ["name", "values", ]:
                     if req_key not in vloop:
                         logger.error("valueloop required key '%s' not found in: %s" %
