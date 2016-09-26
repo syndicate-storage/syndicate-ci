@@ -30,11 +30,11 @@
 
     - name: try to create duplicate user
       command: $SYNDICATE_TOOL -c "$syndicate_conf" create_user "$random_user" auto
-      returncode: 1
+      exit: 1
 
     - name: try to create with invalid email/name
       command: $SYNDICATE_TOOL -c "$syndicate_conf" create_user "asdf.not.an.email" auto
-      returncode: 1
+      exit: 1
 
     - name: create private key for user
       command: openssl genrsa 4096
@@ -58,11 +58,11 @@
 
     - name: check userlist for normal user
       command: grep "$random_user" $config_dir/post_remove_list_users
-      returncode: 1
+      exit: 1
 
     - name: check userlist for admin user
       command: grep "$random_admin" $config_dir/post_remove_list_users
-      returncode: 1
+      exit: 1
 
     - name: create file with contents of users dir
       command: ls $config_dir/users
@@ -70,9 +70,9 @@
 
     - name: verify that normal user has been removed
       command: grep "$random_user" $config_dir/post_remove_users_dir
-      returncode: 1
+      exit: 1
 
     - name: verify that admin user has been removed
       command: grep "$random_admin" $config_dir/post_remove_users_dir
-      returncode: 1
+      exit: 1
 
