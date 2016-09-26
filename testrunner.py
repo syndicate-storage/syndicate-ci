@@ -203,7 +203,7 @@ def newvar(name, value):
 
     r_vars[name] = replace_vars(value)
 
-    logger.debug("Created newvar '%s' with value '%s'" % (name, value))
+    logger.debug("Created newvar '%s' with value '%s'" % (name, r_vars[name]))
 
 
 def replace_vars(string):
