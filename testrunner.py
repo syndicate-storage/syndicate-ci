@@ -123,7 +123,7 @@ def randfile(name, path, size=4096, varname=None):
 
     parentdir = os.path.dirname(exp_path)
     if not os.path.isdir(parentdir):
-        logger.error("Parent '%s' is not a directory for file '%s'" %
+        logger.error("Parent '%s' is not a directory for randfile '%s'" %
                      (parentdir, exp_path))
         sys.exit(1)
 
@@ -135,7 +135,8 @@ def randfile(name, path, size=4096, varname=None):
         varname = name
     r_vars[varname] = exp_path
 
-    logger.debug("Created randfile '%s' at '%s' of size %d" % (varname, exp_path, size))
+    logger.debug("Created randfile '%s' at '%s' of size %d" %
+                 (varname, exp_path, size))
 
 
 def randname(name, size=12, varname=None):
@@ -148,7 +149,8 @@ def randname(name, size=12, varname=None):
         varname = name
     r_vars[varname] = r_name
 
-    logger.debug("Created randname '%s' with value '%s'" % (varname, r_name))
+    logger.debug("Created randname '%s' with value '%s'" %
+                 (varname, r_name))
 
 
 def randloop(name, quantity, size=12, varname=None):
@@ -160,9 +162,39 @@ def randloop(name, quantity, size=12, varname=None):
     for i in xrange(0, quantity):
         vararray.append("%s-%s" % (name, randstring(size)))
 
-    loop_vars[name] = vararray
+    if varname is None:
+        varname = name
 
-    logger.debug("Created loop_var '%s' with %d items" % (name, quantity))
+    loop_vars[varname] = vararray
+
+    logger.debug("Created random loop_var '%s' with %d items" %
+                 (varname, quantity))
+
+
+def sequenceloop(name, quantity, start=0, step=1, varname=None):
+
+    global loop_vars
+
+    if varname is None:
+        varname = name
+
+    loop_vars[varname] = range(start, quantity, step)
+
+    logger.debug("Created sequential loop_var '%s' with %d items" %
+                 (varname, quantity))
+
+
+def valuesloop(name, values, varname=None):
+
+    global loop_vars
+
+    if varname is None:
+        varname = name
+
+    loop_vars[varname] = list(itertools.chain.from_iterable(values))
+
+    logger.debug("Created values loop_var '%s' with %d items" %
+                 (varname, len(loop_vars[varname])))
 
 
 def newvar(name, value):
@@ -194,8 +226,8 @@ def replace_vars(string):
 
 class CommandRunner():
     """
-    Encapsulates running a subprocess and validates return code and optionally
-    stdout/err streams
+    Encapsulates running a subprocess and validates return code
+    and optionally stdout/err streams
     """
 
     def __init__(self, cmd_desc, taskb_name):
@@ -250,6 +282,9 @@ class CommandRunner():
 
         global r_vars
 
+        # $task_name is name of current task
+        r_vars['task_name'] = self.c['name']
+
         # replace variables
         command = replace_vars(self.c['command'])
         self.c['repl_command'] = command
@@ -288,15 +323,15 @@ class CommandRunner():
         retcode = self.p.poll()
 
         if retcode is not None:
-            logger.debug("Task '%s' already terminated, returncode %d" %
+            logger.debug("Task '%s' already terminated, exited %d" %
                          (self.c['name'], retcode))
         else:
             logger.debug("Terminating task '%s'" % self.c['name'])
             self.p.terminate()
 
-            # returncode likely negative of signal, only set if not set
-            if 'returncode' not in self.c:
-                self.c['returncode'] = - signal.SIGTERM
+            # exit likely negative of signal, only set if not set
+            if 'exit' not in self.c:
+                self.c['exit'] = - signal.SIGTERM
 
     def send_signal(self, signal):
 
@@ -305,9 +340,9 @@ class CommandRunner():
 
         self.p.send_signal(signal)
 
-        # returncode is likely negative of signal, only set if not set
-        if 'returncode' not in self.c:
-            self.c['returncode'] = - signal
+        # exit is likely negative of signal, only set if not set
+        if 'exit' not in self.c:
+            self.c['exit'] = - signal
 
     def duration(self, multiplier=1):
 
@@ -328,20 +363,23 @@ class CommandRunner():
         logger.debug("Duration of task '%s': %.6f" %
                      (self.c['name'], self.duration()))
 
+        # $task_name is name of current task
+        r_vars['task_name'] = self.c['name']
+
         # default is 0, check against this in any case
-        returncode = 0
+        exit = 0
 
-        if 'returncode' in self.c:
-            returncode = self.c['returncode']
+        if 'exit' in self.c:
+            exit = self.c['exit']
 
-        if self.p.returncode == returncode:
+        if self.p.returncode == exit:
             logger.debug("Task '%s' exited correctly: %s" %
                          (self.c['name'], self.p.returncode))
         else:
-            retcode_fail = ("Task '%s' incorrect exit: %s, expecting %s" %
-                            (self.c['name'], self.p.returncode, returncode))
-            logger.error(retcode_fail)
-            failures.append(retcode_fail)
+            exit_fail = ("Task '%s' incorrect exit: %s, expecting %s" %
+                            (self.c['name'], self.p.returncode, exit))
+            logger.error(exit_fail)
+            failures.append(exit_fail)
 
         stdout_str = ""
         stderr_str = ""
@@ -357,6 +395,13 @@ class CommandRunner():
         # saving stdout/stderr is optional
         if 'saveout' in self.c:
             so_fname = replace_vars(self.c['saveout'])
+
+            parentdir = os.path.dirname(so_fname)
+            if not os.path.isdir(parentdir):
+                logger.error("Parent '%s' is not a directory for saveout file '%s'" %
+                             (parentdir, so_fname))
+                sys.exit(1)
+
             so_f = open(so_fname, 'w')
             so_f.write(stdout_str)
             so_f.close()
@@ -366,6 +411,13 @@ class CommandRunner():
 
         if 'saveerr' in self.c:
             se_fname = replace_vars(self.c['saveerr'])
+
+            parentdir = os.path.dirname(se_fname)
+            if not os.path.isdir(parentdir):
+                logger.error("Parent '%s' is not a directory for saveerr file '%s'" %
+                             (parentdir, se_fname))
+                sys.exit(1)
+
             se_f = open(se_fname, 'w')
             se_f.write(stdout_str)
             se_f.close()
@@ -374,37 +426,37 @@ class CommandRunner():
                          (self.c['name'], se_fname))
 
         # checks against stdout/stderr are optional
-        if 'outcheck' in self.c:
-            outcheck_fname = replace_vars(self.c['outcheck'])
-            if not os.path.isfile(outcheck_fname):
-                logger.error("Task '%s', nonexistant outcheck file '%s'" %
-                             (self.c['name'], outcheck_fname))
+        if 'checkout' in self.c:
+            checkout_fname = replace_vars(self.c['checkout'])
+            if not os.path.isfile(checkout_fname):
+                logger.error("Task '%s', nonexistant checkout file '%s'" %
+                             (self.c['name'], checkout_fname))
                 sys.exit(1)
 
-            if stdout_str == open(outcheck_fname).read():
+            if stdout_str == open(checkout_fname).read():
                 logger.debug("Task '%s' stdout matches contents of '%s'" %
-                             (self.c['name'], outcheck_fname))
+                             (self.c['name'], checkout_fname))
             else:
-                outcheck_fail = ("Task '%s' stdout does not match contents of '%s'" %
-                                 (self.c['name'], outcheck_fname))
-                logger.error(outcheck_fail)
-                failures.append(outcheck_fail)
+                checkout_fail = ("Task '%s' stdout does not match contents of '%s'" %
+                                 (self.c['name'], checkout_fname))
+                logger.error(checkout_fail)
+                failures.append(checkout_fail)
 
-        if 'errcheck' in self.c:
-            errcheck_fname = replace_vars(self.c['errcheck'])
-            if not os.path.isfile(errcheck_fname):
-                logger.error("Task '%s', nonexistant errcheck file '%s'" %
-                             (self.c['name'], errcheck_fname))
+        if 'checkerr' in self.c:
+            checkerr_fname = replace_vars(self.c['checkerr'])
+            if not os.path.isfile(checkerr_fname):
+                logger.error("Task '%s', nonexistant checkerr file '%s'" %
+                             (self.c['name'], checkerr_fname))
                 sys.exit(1)
 
-            if stderr_str == open(errcheck_fname).read():
+            if stderr_str == open(checkerr_fname).read():
                 logger.debug("Task '%s' stderr matches contents of '%s'"
-                             % (self.c['name'], errcheck_fname))
+                             % (self.c['name'], checkerr_fname))
             else:
-                errcheck_fail = ("Task '%s' stderr does not match contents of '%s'" %
-                                 (self.c['name'], errcheck_fname))
-                logger.error(errcheck_fail)
-                failures.append(errcheck_fail)
+                checkerr_fail = ("Task '%s' stderr does not match contents of '%s'" %
+                                 (self.c['name'], checkerr_fname))
+                logger.error(checkerr_fail)
+                failures.append(checkerr_fail)
 
         if tap_writer:
 
@@ -458,7 +510,10 @@ class RunParallel():
             for index, loop_var in enumerate(loop_vars[varname]):
 
                 modified_task = task.copy()
-                modified_task['command'] = task['command'].replace("$loop_var", loop_var)
+                temp_cmd = task['command'].replace("$loop_var", loop_var)
+                modified_task['command'] = temp_cmd.replace("$loop_index",
+                                                            str(index))
+
                 for key in ['name', 'saveout', 'saveerr', ]:
                     if key in task:
                         modified_task[key] = "%s-%d" % (task[key], index)
@@ -526,12 +581,15 @@ class TAPWriter():
 
         self.current_test += 1
 
-        testdesc = "%s : %s" % (r_vars['taskfile'], testname)
+        # add tasks file name to description
+        testdesc = "%s : %s" % (r_vars['tasksf_name'], testname)
 
         if success:
-            self.tap_file.write("ok %d - %s\n" % (self.current_test, testdesc))
+            self.tap_file.write("ok %d - %s\n" %
+                                (self.current_test, testdesc))
         else:
-            self.tap_file.write("not ok %d - %s\n" % (self.current_test, testdesc))
+            self.tap_file.write("not ok %d - %s\n" %
+                                (self.current_test, testdesc))
 
         if extra_data:
 
@@ -592,26 +650,7 @@ class TaskBlocksRunner():
 
             # create the task blocks
             if taskb['type'] == "setup":
-
-                if 'tmpdirs' in taskb:
-                    for tdir in taskb['tmpdirs']:
-                        tmpdir(tdir['name'], tdir['varname'])
-
-                if 'randfiles' in taskb:
-                    for rfile in taskb['randfiles']:
-                        randfile(rfile['name'], rfile['path'], rfile['size'])
-
-                if 'randnames' in taskb:
-                    for rname in taskb['randnames']:
-                        randname(rname)
-
-                if 'randloop' in taskb:
-                    for rloop in taskb['randloop']:
-                        randloop(rloop['name'], rloop['quantity'])
-
-                if 'vars' in taskb:
-                    for v_name in taskb['vars']:
-                        newvar(v_name['name'], v_name['value'])
+                self.setup_block(taskb)
 
             elif taskb['type'] == "daemon":
                 daemon_runner = RunDaemon(taskb, tap_writer)
@@ -639,7 +678,48 @@ class TaskBlocksRunner():
                              (taskb['type'], taskb))
                 sys.exit(1)
 
-        tap_writer.write_header(num_tests)
+        if tap_writer:
+            tap_writer.write_header(num_tests)
+
+    def setup_block(self, setupb):
+
+        if 'tmpdirs' in setupb:
+            for tdir in setupb['tmpdirs']:
+                tmpdir(tdir['name'], tdir['varname'])
+
+        if 'randfiles' in setupb:
+            for rfile in setupb['randfiles']:
+                randfile(rfile['name'], rfile['path'], rfile['size'])
+
+        if 'randnames' in setupb:
+            for rname in setupb['randnames']:
+                randname(rname)
+
+        if 'vars' in setupb:
+            for v_name in setupb['vars']:
+                newvar(v_name['name'], v_name['value'])
+
+        if 'randloop' in setupb:
+            for rloop in setupb['randloop']:
+                randloop(rloop['name'], rloop['quantity'])
+
+        if 'seqloop' in setupb:
+            for sloop in setupb['seqloop']:
+                randloop(sloop['name'], sloop['quantity'])
+
+        if 'valueloop' in setupb:
+            for vloop in setupb['arrayloop']:
+                for req_key in ["name", "values", ]:
+                    if req_key not in vloop:
+                        logger.error("valueloop required key '%s' not found in: %s" %
+                                     (req_key, vloop))
+                        sys.exit(1)
+
+                if not isinstance(vloop['values'], list):
+                    logger.error("non-list values in valueloop: %s" % vloop)
+                    sys.exit(1)
+
+                valueloop(vloop['name'], vloop['values'])
 
     def run_task_blocks(self):
 
@@ -689,8 +769,8 @@ if __name__ == "__main__":
     logger.debug("Started at %s" % start_dt.strftime(args.time_format))
 
     tasks_file_abspath = os.path.abspath(args.tasks_file.name)
-    r_vars['taskdir'] = os.path.dirname(tasks_file_abspath)
-    r_vars['taskfile'] = os.path.basename(tasks_file_abspath)
+    r_vars['tasksf_dir'] = os.path.dirname(tasks_file_abspath)
+    r_vars['tasksf_name'] = os.path.basename(tasks_file_abspath)
 
     logger.debug("Running tasks from file '%s'" % tasks_file_abspath)
 

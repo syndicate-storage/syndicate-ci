@@ -50,7 +50,7 @@
   tasks:
     - name: start RG
       command: $rg_path -c "$syndicate_conf" -d2 -f -u $SYNDICATE_ADMIN -v $test_volume -g $test_rg
-      returncode: 0
+      exit: 0
 
 - name: setup UGs
   type: sequential
@@ -79,4 +79,5 @@
 
     - name: compare
       command: diff -q $local_file $loop_var
-      returncode: 0
+      exit: 0
+

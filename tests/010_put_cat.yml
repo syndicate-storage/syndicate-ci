@@ -50,7 +50,7 @@
   tasks:
     - name: start RG
       command: $rg_path -c "$syndicate_conf" -d2 -f -u $SYNDICATE_ADMIN -v $test_volume -g $test_rg
-      returncode: 0
+      exit: 0
 
 - name: setup UGs
   type: sequential
@@ -76,4 +76,4 @@
 
     - name: test cat
       command: $cat_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $cat_ug /$loop_var
-      outcheck: $local_file
+      checkout: $local_file
