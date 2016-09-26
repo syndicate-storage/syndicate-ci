@@ -10,14 +10,12 @@
     - test_rg
     - put_ug
     - cat_ug
-  randfiles:
-    - name: local_file
-      path: $config_dir/local_file
-      size: 16384
   randloop:
     - name: test_fnames
       quantity: 10
   vars:
+    - name: local_file
+      value: $config_dir/local_file
     - name: syndicate_conf
       value: $config_dir/syndicate.conf
     - name: rg_driver
@@ -32,6 +30,9 @@
 - name: config
   type: sequential
   tasks:
+    - name: make local_file
+      command: $tasksf_dir/mkrandfile.py $local_file 16384
+
     - name: setup
       command: $SYNDICATE_TOOL --trust_public_key -c "$syndicate_conf" --debug setup "$SYNDICATE_ADMIN" "$SYNDICATE_PRIVKEY_PATH" "$SYNDICATE_MS"
 
