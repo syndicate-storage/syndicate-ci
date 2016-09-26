@@ -64,7 +64,7 @@
     - name: create cat UG
       command: $SYNDICATE_TOOL -c "$syndicate_conf" create_gateway name=$cat_ug type=UG volume=$test_volume email=$SYNDICATE_ADMIN private_key=auto port=31111
 
-    - name: update put UG
+    - name: update cat UG
       command: $SYNDICATE_TOOL -c "$syndicate_conf" update_gateway name=$cat_ug caps=ALL
 
 - name: run put/cat tests
@@ -77,4 +77,3 @@
     - name: test cat
       command: $cat_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $cat_ug /$loop_var
       outcheck: $local_file
-
