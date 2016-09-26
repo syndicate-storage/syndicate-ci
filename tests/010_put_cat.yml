@@ -10,7 +10,6 @@
     - test_rg
     - put_ug
     - cat_ug
-    - output_path
   randfiles:
     - name: local_file
       path: $config_dir/local_file

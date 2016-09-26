@@ -5,14 +5,11 @@
   tmpdirs:
     - name: 011_put_get
       varname: config_dir
-    - name: get_output
-      varname: $config_dir/get_output
   randnames:
     - test_volume
     - test_rg
     - put_ug
     - get_ug
-    - output_path
   randfiles:
     - name: local_file
       path: $config_dir/local_file
@@ -77,8 +74,8 @@
       command: $put_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $put_ug $local_file /$loop_var
 
     - name: test get
-      command: $get_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $get_ug /$loop_var $get_output/$loop_var
+      command: $get_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $get_ug /$loop_var $config_dir/get_$loop_var
 
     - name: compare
-      command: diff -q $local_file $get_output/$loop_var
+      command: diff -q $local_file $config_dir/get_$loop_var
       exit: 0
