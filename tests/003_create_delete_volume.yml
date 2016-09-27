@@ -39,10 +39,10 @@
       exit: 1
 
     - name: create directory to move aside volumes data
-      command: mkdir $config_dir/volumes_bak
+      command: mkdir -p $config_dir/volumes_bak
 
     - name: move aside volume data
-      command: mv $config_dir/volumes/* $config_dir/volumes_bak
+      command: mv $config_dir/volumes/* $config_dir/volumes_bak/
 
     - name: delete volume
       command: $SYNDICATE_TOOL -c "$syndicate_conf" delete_volume "$random_volume"
@@ -50,13 +50,14 @@
     - name: list volumes
       command: $SYNDICATE_TOOL -c "$syndicate_conf" list_volumes
       saveout: $config_dir/list_volumes
+      checkout: $tasksf_dir/emptylist
 
     - name: check that volume was deleted
       command: grep "$random_volume" $config_dir/list_volumes
       exit: 1
 
     - name: verify that volumes dir is empty
-      command: ls -l $config_dir/volumes/
+      command: ls $config_dir/volumes/
       checkout: $tasksf_dir/emptyfile
 
     - name: delete volume dupe
@@ -64,7 +65,7 @@
       exit: 1
 
     - name: move back volumes data
-      command: mv $config_dir/volumes_bak/* $config_dir/volumes
+      command: mv $config_dir/volumes_bak/* $config_dir/volumes/
 
     - name: delete on MS
       command: $SYNDICATE_TOOL -c "$syndicate_conf" delete_volume "$random_volume"
