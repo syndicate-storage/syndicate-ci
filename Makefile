@@ -40,8 +40,9 @@ docker_logs:
 
 # sleep is to let the MS start up
 up: $(GAE_SDK) build $(CONTAINER_DIR)/ms/app.yaml
+	chmod a+w output results
 	$(DOCKER_COMPOSE) build
-	$(DOCKER_COMPOSE) up --timeout 1 -d
+	$(DOCKER_COMPOSE) up --timeout 1 -d ms
 	sleep 10
 
 stop:
@@ -65,4 +66,3 @@ showlogs:
 clean: clean_certs
 	rm -f $(RESULT_DIR)/*.tap
 	rm -rf $(OUTPUT_DIR)/*
-
