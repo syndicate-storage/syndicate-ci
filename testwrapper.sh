@@ -3,7 +3,7 @@
 # Syntax:
 #   -d 			run with python debugger
 #   -i			interactively ask which test to run
-#   -n <test number>	run the test number specified			
+#   -n <test number>	run the test number specified
 
 TESTDIR=./tests
 RESULTDIR=./results
@@ -53,13 +53,15 @@ else
   testname=${test##*/}
   echo "Running test: '${testname}'"
   python $debug ./testrunner.py -d -t ${RESULTDIR}/${testname%.*}.tap ${test} ${OUTPUTDIR}/${testname%.*}.out
-fi 
+fi
 
 echo "Copying logs..."
 cp -r /tmp/synd-* $OUTPUTDIR
-chmod -R a+rwx $OUTPUTDIR
+# change permissions.
+# ${OUTPUTDIR} and ${OUTPUTDIR}/.gitignore are owned by the host account thus shouldn't be modified.
+chmod -R a+rwx ${OUTPUTDIR}/*.out
+chmod -R a+rwx ${OUTPUTDIR}/synd-*
 
 echo "End Time:   `date +'%F %T'`"
 end_t=`date +%s`
 echo "Elapsed Time: $((${end_t} - ${start_t}))s"
-
