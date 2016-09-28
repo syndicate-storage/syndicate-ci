@@ -17,7 +17,7 @@ fi
 
 testnumber=0
 if [[ $@ =~ -n ]]; then
-  testnumber=`echo $@ | sed 's/^.*-n//g' | awk '{ print $1 }' | xargs printf "%03d"`
+  testnumber=`echo $@ | sed -e 's/^.*-n//g' -e 's/^ *0*//g' | xargs printf "%03d"`
 fi
 
 # bring in config
@@ -65,3 +65,4 @@ chmod -R a+rwx ${OUTPUTDIR}/synd-*
 echo "End Time:   `date +'%F %T'`"
 end_t=`date +%s`
 echo "Elapsed Time: $((${end_t} - ${start_t}))s"
+
