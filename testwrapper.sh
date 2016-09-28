@@ -26,9 +26,11 @@ done
 
 echo "Copying logs..."
 cp -r /tmp/synd-* $OUTPUTDIR
-chmod -R a+rwx $OUTPUTDIR
+# change permissions.
+# ${OUTPUTDIR} and ${OUTPUTDIR}/.gitignore are owned by the host account.
+chmod -R a+rwx ${OUTPUTDIR}/*.out
+chmod -R a+rwx ${OUTPUTDIR}/synd-*
 
 echo "End Time:   `date +'%F %T'`"
 end_t=`date +%s`
 echo "Elapsed Time: $((${end_t} - ${start_t}))s"
-
