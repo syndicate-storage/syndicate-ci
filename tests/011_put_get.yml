@@ -10,9 +10,21 @@
     - test_rg
     - put_ug
     - get_ug
-  randloop:
-    - name: test_fnames
-      quantity: 10
+  valueloop:
+    - name: test_fsizes
+      values:
+        - 0
+        - 1
+        - 4095
+        - 4096
+        - 4097
+        - 8191
+        - 8192
+        - 8193
+        - 16384
+        - 65535
+        - 65536
+        - 65537
   vars:
     - name: local_file
       value: $config_dir/local_file
@@ -30,9 +42,6 @@
 - name: config
   type: sequential
   tasks:
-    - name: make local_file
-      command: $tasksf_dir/mkrandfile.py $local_file 16384
-
     - name: setup
       command: $SYNDICATE_TOOL --trust_public_key -c "$syndicate_conf" --debug setup "$SYNDICATE_ADMIN" "$SYNDICATE_PRIVKEY_PATH" "$SYNDICATE_MS"
 
@@ -67,16 +76,19 @@
     - name: update get UG
       command: $SYNDICATE_TOOL -c "$syndicate_conf" update_gateway name=$get_ug caps=ALL
 
-- name: run put/get tests
+- name: run put/get tests with files in different sizes
   type: sequential
-  loop_on: test_fnames
+  loop_on: test_fsizes
   tasks:
+    - name: make local_file
+      command: $tasksf_dir/mkrandfile.py ${local_file}_${loop_var} $loop_var
+
     - name: test put
-      command: $put_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $put_ug $local_file /$loop_var
+      command: $put_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $put_ug ${local_file}_${loop_var} /$loop_var
 
     - name: test get
       command: $get_path -d2 -f -c "$syndicate_conf" -u $SYNDICATE_ADMIN -v $test_volume -g $get_ug /$loop_var $config_dir/get_${loop_var}
 
     - name: compare
-      command: diff -q $local_file $config_dir/get_${loop_var}
+      command: diff -q ${local_file}_${loop_var} $config_dir/get_${loop_var}
       exit: 0
