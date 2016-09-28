@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
 # Runs syndicate tests in PATHDIR, puts TAP results in TESTDIR
+# Syntax:
+#   -d 			run with python debugger
+#   -i			interactively ask which test to run
+#   -n <test number>	run the test number specified			
 
 TESTDIR=./tests
 RESULTDIR=./results
 OUTPUTDIR=./output
 BASH=/bin/bash
+
+debug=''
+if [[ $@ =~ -d ]]; then
+  debug='-m pdb'
+fi
+
+testnumber=0
+if [[ $@ =~ -n ]]; then
+  testnumber=`echo $@ | sed 's/^.*-n//g' | awk '{ print $1 }' | xargs printf "%03d"`
+fi
 
 # bring in config
 source config.sh
@@ -18,19 +32,34 @@ echo "Working in: '`pwd`'"
 rm -f ${RESULTDIR}/*.tap
 
 # run the tests
-for test in $(ls ${TESTDIR}/*.yml ); do
+if [ $testnumber -eq 0 ]; then
+  for test in $(ls ${TESTDIR}/*.yml ); do
+    testname=${test##*/}
+    runtest=1
+    if [[ $@ =~ -i ]]; then
+      runtest=0
+      read -p "Run ${testname}? (y/n): " run
+      if [[ $run =~ [Yy] ]]; then
+         runtest=1
+      fi
+    fi
+    if [ $runtest == 1 ]; then
+      echo "Running test: '${testname}'"
+      python $debug ./testrunner.py -d -t ${RESULTDIR}/${testname%.*}.tap ${test} ${OUTPUTDIR}/${testname%.*}.out
+    fi
+  done
+else
+  test=`find ${TESTDIR} -name "*${testnumber}_*.yml"`
   testname=${test##*/}
   echo "Running test: '${testname}'"
-  python ./testrunner.py -d -t ${RESULTDIR}/${testname%.*}.tap ${test} ${OUTPUTDIR}/${testname%.*}.out
-done
+  python $debug ./testrunner.py -d -t ${RESULTDIR}/${testname%.*}.tap ${test} ${OUTPUTDIR}/${testname%.*}.out
+fi 
 
 echo "Copying logs..."
 cp -r /tmp/synd-* $OUTPUTDIR
-# change permissions.
-# ${OUTPUTDIR} and ${OUTPUTDIR}/.gitignore are owned by the host account.
-chmod -R a+rwx ${OUTPUTDIR}/*.out
-chmod -R a+rwx ${OUTPUTDIR}/synd-*
+chmod -R a+rwx $OUTPUTDIR
 
 echo "End Time:   `date +'%F %T'`"
 end_t=`date +%s`
 echo "Elapsed Time: $((${end_t} - ${start_t}))s"
+
