@@ -515,8 +515,8 @@ class RunParallel():
 
         tasks = []
 
-        for task in taskblock['tasks']:
-            for index, loop_var in enumerate(loop_vars[varname]):
+        for index, loop_var in enumerate(loop_vars[varname]):
+            for task in taskblock['tasks']:
 
                 r_vars['loop_index'] = str(index)
                 r_vars['loop_var'] = str(loop_var)
