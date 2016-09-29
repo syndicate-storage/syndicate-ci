@@ -187,7 +187,7 @@ def replace_vars(string):
     global r_vars
 
     # two captures, on space/word boundaries, one with explicit {}'s
-    rsv = re.compile('(?:\W|^)\$(\w+)(?:\W|$)')
+    rsv = re.compile('(?:\W|^)\$(\w+)(?:\W|$)*?')
     rsv_matches = rsv.findall(string)
 
     for match in rsv_matches:
@@ -222,6 +222,7 @@ class CommandRunner():
 
         self.c = {}
         self.p = None
+        self.run_in_shell = False
         self.out_th = {}
         self.err_th = {}
         self.start_t = None
@@ -230,13 +231,19 @@ class CommandRunner():
         self.taskb_name = taskb_name
         self.q = collections.deque()
 
+        self.c = cmd_desc
+
+        if "shell" in cmd_desc:
+            self.run_in_shell = True
+            self.c['command'] = cmd_desc['shell']
+
         for req_key in ["name", "command", ]:
-            if req_key not in cmd_desc:
+            if req_key not in self.c:
                 logger.error("no key '%s' in command description: %s" %
-                             (req_key, cmd_desc))
+                             (req_key, self.c))
                 sys.exit(1)
 
-        self.c = cmd_desc
+        # FIXME: check for and open stdin file if possible here.
 
     def __pipe_reader(self, stream, stream_name, task_desc):
 
@@ -283,9 +290,17 @@ class CommandRunner():
         c_array = shlex.split(command)
 
         ON_POSIX = 'posix' in sys.builtin_module_names
-        self.p = subprocess.Popen(c_array, stdout=subprocess.PIPE,
-                                  stderr=subprocess.PIPE, bufsize=1,
-                                  close_fds=ON_POSIX)
+
+        run_params = {"stdout": subprocess.PIPE, "stderr": subprocess.PIPE,
+                      "bufsize": 1, "close_fds": ON_POSIX, }
+
+        if self.run_in_shell:
+            run_params['shell'] = True
+
+        if "stdin" in self.c:
+            pass  # make this open a file, then set run_params['stdin'] to the fh
+
+        self.p = subprocess.Popen(c_array, **run_params)
 
         self.start_t = time.time()
 
