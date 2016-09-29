@@ -282,10 +282,7 @@ class CommandRunner():
         command = replace_vars(self.c['command'])
         self.c['repl_command'] = command
 
-
         ON_POSIX = 'posix' in sys.builtin_module_names
-
-        logger.debug("ON_POSIX: %s" % ON_POSIX)
 
         run_params = {"stdout": subprocess.PIPE, "stderr": subprocess.PIPE,
                       "bufsize": 1, "close_fds": ON_POSIX, }
@@ -293,14 +290,15 @@ class CommandRunner():
         if "infile" in self.c:
             in_fname = replace_vars(self.c['infile'])
             if os.path.isfile(in_fname):
-                run_params["stdin"] = open(in_fname,'r')
+                run_params["stdin"] = open(in_fname, 'r')
             else:
                 logger.error("infile '%s' is not a file" % in_fname)
                 sys.exit(1)
 
         if self.run_in_shell:
             # pass command as string if running in a shell
-            logger.debug("Running Task '%s': `%s` in shell" % (self.c['name'], command))
+            logger.debug("Running Task '%s': `%s` in shell" %
+                         (self.c['name'], command))
             run_params['shell'] = True
             self.p = subprocess.Popen(command, **run_params)
         else:
