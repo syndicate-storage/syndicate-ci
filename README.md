@@ -184,6 +184,9 @@ The `command:` directive specifies the command to run. Variables can be
 interpolated here, but as this is not run in a sub-shell, piping or redirection
 is not supported - see `saveout` and `saveerr` below.
 
+The `shell` directive is like command, but runs in a subshell. This was added
+mainly for fileglobbing abilties and should be used sparing and only. 
+
 #### Looping
 
 `loop_on` can be included in a task block to cause multiple copies of the same
