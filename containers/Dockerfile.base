@@ -26,6 +26,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
     syndicate-core
 
 # setup syndicate user
-RUN groupadd -r syndicate && useradd -m -r -g syndicate syndicate
+RUN groupadd -r syndicate && useradd -m -r -g syndicate syndicate &&\
+    echo 'syndicate:syndicate' | chpasswd && echo "syndicate ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 ENV HOME /home/syndicate
-
