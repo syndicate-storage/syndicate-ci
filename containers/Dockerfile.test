@@ -10,7 +10,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
     syndicate-rg \
     syndicate-ag \
     syndicatefs \
+    fuse \
     valgrind
+
+# Join to the fuse group
+RUN usermod -aG fuse syndicate
 
 # Switch to being the syndicate user
 USER syndicate
