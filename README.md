@@ -180,13 +180,6 @@ after every task within it has exited.
 task blocks are run. If the daemon process is still running after all other
 task blocks have completed, the tasks within are are terminated with `SIGTERM`.
 
-The `command:` directive specifies the command to run. Variables can be
-interpolated here, but as this is not run in a sub-shell, piping or redirection
-is not supported - see `saveout` and `saveerr` below.
-
-The `shell` directive is like command, but runs in a subshell. This was added
-mainly for fileglobbing abilties and should be used sparing and only. 
-
 #### Looping
 
 `loop_on` can be included in a task block to cause multiple copies of the same
@@ -196,7 +189,27 @@ There are two variables set each time the loop is run, `$loop_var` and
 `$loop_index`, which correspondingly have a value from the array and the
 current loop number (starting at 0).
 
+
+### Task Definitions
+
+Each task requires a `name` and one of `command` or `shell` to be defined in it.
+
+`command:` - specifies the command to run. Variables can be interpolated here,
+but as this is not run in a sub-shell, piping or redirection is not supported -
+see `saveout` and `saveerr` below.
+
+`shell` - works like command, but runs in a subshell. This was added mainly for
+fileglobbing abilties and should be used sparingly and only when absolutely
+needed.
+
+`infile` - give a filename which will be supplied to stdin of the command.
+
+`saveout` and `saveerr` - not tests, but these save the `stdout` and `stderr`
+streams to a file.
+
 #### Command Tests
+
+These arguments perform the pass/fail test functionality. 
 
 `exit` - The exit code that the command should exit with, if it's not the
 default of `0`.  Fail test if the command's exit code is not this value, or if
@@ -205,6 +218,4 @@ default of `0`.  Fail test if the command's exit code is not this value, or if
 `checkout` and `checkerr` - compare the `stdout` and `stderr` streams to the
 contents of a file. Fail test if it contents don't match.
 
-`saveout` and `saveerr` - not tests, but these save the `stdout` and
-`stderr` streams to a file.  Doesn't affect job success/failure.
 
