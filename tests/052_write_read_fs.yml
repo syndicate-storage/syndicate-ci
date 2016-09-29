@@ -73,7 +73,10 @@
 - name: check syndicate is mounted
   type: sequential
   tasks:
-    - name: test mountpoint
+    - name: wait for syndicatefs to be mounted
+      command: sleep 5s
+
+    - name: test filesystem type
       command: stat -f -L -c %T $mount_dir
       saveout: $config_dir/testfs_type.out
 
