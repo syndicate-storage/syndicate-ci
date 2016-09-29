@@ -243,8 +243,6 @@ class CommandRunner():
                              (req_key, self.c))
                 sys.exit(1)
 
-        # FIXME: check for and open stdin file if possible here.
-
     def __pipe_reader(self, stream, stream_name, task_desc):
 
         global args
@@ -284,23 +282,32 @@ class CommandRunner():
         command = replace_vars(self.c['command'])
         self.c['repl_command'] = command
 
-        logger.debug("Running Task '%s': `%s`" % (self.c['name'], command))
-
-        # split command into array
-        c_array = shlex.split(command)
 
         ON_POSIX = 'posix' in sys.builtin_module_names
+
+        logger.debug("ON_POSIX: %s" % ON_POSIX)
 
         run_params = {"stdout": subprocess.PIPE, "stderr": subprocess.PIPE,
                       "bufsize": 1, "close_fds": ON_POSIX, }
 
+        if "infile" in self.c:
+            in_fname = replace_vars(self.c['infile'])
+            if os.path.isfile(in_fname):
+                run_params["stdin"] = open(in_fname,'r')
+            else:
+                logger.error("infile '%s' is not a file" % in_fname)
+                sys.exit(1)
+
         if self.run_in_shell:
+            # pass command as string if running in a shell
+            logger.debug("Running Task '%s': `%s` in shell" % (self.c['name'], command))
             run_params['shell'] = True
-
-        if "stdin" in self.c:
-            pass  # make this open a file, then set run_params['stdin'] to the fh
-
-        self.p = subprocess.Popen(c_array, **run_params)
+            self.p = subprocess.Popen(command, **run_params)
+        else:
+            # split command into array for running directly
+            logger.debug("Running Task '%s': `%s`" % (self.c['name'], command))
+            c_array = shlex.split(command)
+            self.p = subprocess.Popen(c_array, **run_params)
 
         self.start_t = time.time()
 
