@@ -474,8 +474,8 @@ class CommandRunner():
                              (self.c['name'], cout_rv))
 
             else:
-                cout_fail = ("Task '%s' stdout does not match string '%s'" %
-                             (self.c['name'], cout_rv))
+                cout_fail = ("Task '%s' stdout '%s' does not match string '%s'" %
+                             (self.c['name'], stdout_str.rstrip(), cout_rv))
                 logger.error(cout_fail)
                 failures.append(cout_fail)
 
@@ -486,8 +486,8 @@ class CommandRunner():
                              (self.c['name'], cerr_rv))
 
             else:
-                cerr_fail = ("Task '%s' stderr does not match string '%s'" %
-                             (self.c['name'], cerr_rv))
+                cerr_fail = ("Task '%s' stderr '%s' does not match string '%s'" %
+                             (self.c['name'], stderr_str.rstrip(), cerr_rv))
                 logger.error(cerr_fail)
                 failures.append(cerr_fail)
 
@@ -828,4 +828,3 @@ if __name__ == "__main__":
 
     logger.debug("Ended at %s, duration: %.6f" %
                  (end_dt.strftime(args.time_format), duration))
-
