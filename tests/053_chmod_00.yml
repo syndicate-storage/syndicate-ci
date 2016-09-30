@@ -76,116 +76,116 @@
   tasks:
     - name: T1 - make a file
       command: fstest create ${n0} 0644
-      compareout: 0
+      compareout: "0"
 
     - name: T1 - stat a file
       command: fstest stat ${n0} mode
-      compareout: 0644
+      compareout: "0644"
 
     - name: T1 - chmod a file
       command: fstest chmod ${n0} 0111
-      compareout: 0
+      compareout: "0"
 
     - name: T1 - stat a file
       command: fstest stat ${n0} mode
-      compareout: 0111
+      compareout: "0111"
 
     - name: T1 - unlink a file
       command: fstest unlink ${n0}
-      compareout: 0
+      compareout: "0"
 
     - name: T2 - make a directory
       command: fstest mkdir ${n0} 0755
-      compareout: 0
+      compareout: "0"
 
     - name: T2 - stat a directory
       command: fstest stat ${n0} mode
-      compareout: 0755
+      compareout: "0755"
 
     - name: T2 - chmod a directory
       command: fstest chmod ${n0} 0753
-      compareout: 0
+      compareout: "0"
 
     - name: T2 - stat a directory
       command: fstest stat ${n0} mode
-      compareout: 0753
+      compareout: "0753"
 
     - name: T2 - rmdir a directory
       command: fstest rmdir ${n0}
-      compareout: 0
+      compareout: "0"
 
     - name: T3 - create a file
       command: fstest create ${n0} 0644
-      compareout: 0
+      compareout: "0"
 
     - name: T3 - create a symlink
       command: fstest symlink ${n0} ${n1}
-      compareout: 0
+      compareout: "0"
 
     - name: T3 - stat a symlink
       command: fstest stat ${n1} mode
-      compareout: 0644
+      compareout: "0644"
 
     - name: T3 - chmod a symlink
       command: fstest chmod ${n1} 0321
-      compareout: 0
+      compareout: "0"
 
     - name: T3 - stat a symlink
       command: fstest stat ${n1} mode
-      compareout: 0321
+      compareout: "0321"
 
     - name: T3 - lstat a file
       command: fstest lstat ${n0} mode
-      compareout: 0321
+      compareout: "0321"
 
     - name: T3 - unlink a file
       command: fstest unlink ${n0}
-      compareout: 0
+      compareout: "0"
 
     - name: T3 - unlink a symlink
       command: fstest unlink ${n1}
-      compareout: 0
+      compareout: "0"
 
     - name: T4 - create a file
       command: fstest create ${n0} 0644
-      compareout: 0
+      compareout: "0"
 
     - name: T4 - create a symlink
       command: fstest symlink ${n0} ${n1}
-      compareout: 0
+      compareout: "0"
 
     - name: T4 - stat a symlink
       command: fstest stat ${n1} mode
-      compareout: 0644
+      compareout: "0644"
 
     - name: T4 - lchmod a symlink
       command: fstest lchmod ${n1} 0321
-      compareout: 0
+      compareout: "0"
 
     - name: T4 - lstat a symlink
       command: fstest lstat ${n1} mode
-      compareout: 0321
+      compareout: "0321"
 
     - name: T4 - lchmod a symlink
       command: fstest lchmod ${n1} 0531
-      compareout: 0
+      compareout: "0"
 
     - name: T4 - lstat a symlink
       command: fstest lstat ${n1} mode
-      compareout: 0531
+      compareout: "0531"
 
     - name: T4 - stat a file
       command: fstest stat ${n0} mode
-      compareout: 0644
+      compareout: "0644"
 
     - name: T4 - stat a symlink
       command: fstest stat ${n1} mode
-      compareout: 0644
+      compareout: "0644"
 
     - name: T4 - unlink a file
       command: fstest unlink ${n0}
-      compareout: 0
+      compareout: "0"
 
     - name: T4 - unlink a symlink
       command: fstest unlink ${n1}
-      compareout: 0
+      compareout: "0"
