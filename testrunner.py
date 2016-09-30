@@ -35,7 +35,7 @@ logger = logging.getLogger()
 global args
 global r_vars  # dict of replacement vars
 global loop_vars  # dict of arrays of vars to loop tasks on
-
+global dict_flag
 
 def parse_args():
 
@@ -173,6 +173,22 @@ def valueloop(name, values, varname=None):
                  (varname, len(loop_vars[varname])))
 
 
+def dictloop(name, values, varname=None):
+
+    global loop_vars
+    global dict_flag
+
+    dict_flag = True
+
+    if varname is None:
+        varname = name
+
+    loop_vars[varname] = values
+
+    logger.debug("Created dictionary loop_var '%s' with %d items" %
+                 (varname, len(loop_vars[varname])))
+
+
 def newvar(name, value):
 
     global r_vars
@@ -186,24 +202,29 @@ def replace_vars(string):
 
     global r_vars
 
-    # two captures, on space/word boundaries, one with explicit {}'s
-    rsv = re.compile('(?:\W|^)\$(\w+)(?:\W|$)*?')
-    rsv_matches = rsv.findall(string)
-
-    for match in rsv_matches:
-        if match in r_vars:
-            rr = re.compile('\$%s' % match)
-            string = rr.sub(r_vars[match], string, count=1)
-        else:
-            logger.error("Unknown variable: '$%s' in '%s'" %
-                         (match, string))
-
-    rcv = re.compile('\$\{(\w+)\}')
+    # convert subscript format to dot format, for dictionaries
+    string = re.sub(r"\[\'", ".", string)
+    string = re.sub(r"\'\]", "", string)
+    
+    # first capture with explicit {}'s
+    rcv = re.compile('\$\{(\w+\.\w+|\w+)\}(?:\W|$)*?')
     rcv_matches = rcv.findall(string)
 
     for match in rcv_matches:
         if match in r_vars:
             rr = re.compile('\$\{%s\}' % match)
+            string = rr.sub(r_vars[match], string, count=1)
+        else:
+            logger.error("Unknown variable: '$%s' in '%s'" %
+                         (match, string))
+    
+    # second capture on space/word boundaries with and without dictionary keys
+    rsv = re.compile('\$(\w+\.\w+|\w+)(?:\W|$)*?')
+    rsv_matches = rsv.findall(string)
+
+    for match in rsv_matches:
+        if match in r_vars:
+            rr = re.compile('\$%s' % match)
             string = rr.sub(r_vars[match], string, count=1)
         else:
             logger.error("Unknown variable: '$%s' in '%s'" %
@@ -540,12 +561,20 @@ class RunParallel():
 
         tasks = []
 
-        for index, loop_var in enumerate(loop_vars[varname]):
-            for task in taskblock['tasks']:
+        for task in taskblock['tasks']:
+            for index, loop_var in enumerate(loop_vars[varname]):
+                if dict_flag:
+                    for key in loop_var.keys():                     #if dict, for each key in the dictionary
+                         varkeystr = "%s.%s" % (varname,key)        #create a r_vars key based on the loop "varname" and dict key using the dot format
+                         r_vars[varkeystr] = str(loop_var[key])     #set the dict value and the new key in r_vars to be used in replace_vars
+                         varkeystr = "loop_var.%s" % (key)          #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname"
+                         r_vars[varkeystr] = str(loop_var[key])
+                else:
+                    varkeystr = str(varname)                        #if not a dict, i.e. basic list, works similar as dict but does not use the dictionary key as part of the loop "varname" key
+                    r_vars[varkeystr] = str(loop_var)
+                    r_vars['loop_var'] = str(loop_var)              #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname"
 
                 r_vars['loop_index'] = str(index)
-                r_vars['loop_var'] = str(loop_var)
-
                 modified_task = task.copy()
                 modified_task['command'] = replace_vars(task['command'])
 
@@ -761,6 +790,20 @@ class TaskBlocksRunner():
 
                 valueloop(vloop['name'], vloop['values'])
 
+        if 'dictloop' in setupb:
+            for vloop in setupb['dictloop']:
+                for req_key in ["name", "values", ]:
+                    if req_key not in vloop:
+                        logger.error("valueloop required key '%s' not found in: %s" %
+                                     (req_key, vloop))
+                        sys.exit(1)
+
+                if not isinstance(vloop['values'], list):
+                    logger.error("non-list values in valueloop: %s" % vloop)
+                    sys.exit(1)
+
+                dictloop(vloop['name'], vloop['values'])
+
     def run_task_blocks(self):
 
         for runner in self.runners:
@@ -798,8 +841,10 @@ if __name__ == "__main__":
     global args
     global r_vars
     global loop_vars
+    global dict_flag
 
     loop_vars = {}
+    dict_flag = False
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
