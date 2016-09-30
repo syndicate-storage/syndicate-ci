@@ -468,7 +468,7 @@ class CommandRunner():
 
         # check out/err against strings, after rstrip of output
         if 'compareout' in self.c:
-            cout_rv = replace_vars(self.c['compareout'])
+            cout_rv = replace_vars(str(self.c['compareout']))
             if cout_rv == stdout_str.rstrip():
                 logger.debug("Task '%s' stdout matches string of '%s'" %
                              (self.c['name'], cout_rv))
@@ -480,7 +480,7 @@ class CommandRunner():
                 failures.append(cout_fail)
 
         if 'compareerr' in self.c:
-            cerr_rv = replace_vars(self.c['compareerr'])
+            cerr_rv = replace_vars(str(self.c['compareerr']))
             if cerr_rv == stderr_str.rstrip():
                 logger.debug("Task '%s' stderr matches string of '%s'" %
                              (self.c['name'], cerr_rv))
