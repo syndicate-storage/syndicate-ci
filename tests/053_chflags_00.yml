@@ -23,8 +23,6 @@
       value: $SYNDICATE_RG_ROOT/syndicate-rg
     - name: ug_path
       value: $SYNDICATE_UG_ROOT/syndicatefs
-    - name: fstest_path
-      value: $tasksf_dir/fstest/fstest
 
 - name: config
   type: sequential
@@ -46,9 +44,6 @@
 
     - name: update UG
       command: $SYNDICATE_TOOL -c "$syndicate_conf" update_gateway name=$test_ug caps=ALL
-
-    - name: build fstest
-      command: make -c $tasksf_dir/fstest
 
 - name: daemon UG/RG
   type: daemon
@@ -79,5 +74,5 @@
   type: sequential
   tasks:
     - name: make temp dir
-      command: $fstest_path mkdir ${n2} 0755
+      command: $fstest_path mkdir ${mount_dir}/${n2} 0755
       exit: 0
