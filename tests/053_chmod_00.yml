@@ -114,24 +114,36 @@
       command: fstest rmdir ${n0}
       compareout: 0
 
-    - name: T3 - mkfifo
-      command: fstest mkfifo ${n0} 0644
+    - name: T3 - create a file
+      command: fstest create ${n0} 0644
       compareout: 0
 
-    - name: T3 - stat fifo
-      command: fstest stat ${n0} mode
+    - name: T3 - create a symlink
+      command: fstest symlink ${n0} ${n1}
+      compareout: 0
+
+    - name: T3 - stat a symlink
+      command: fstest stat ${n1} mode
       compareout: 0644
 
-    - name: T3 - chmod fifo
-      command: fstest chmod ${n0} 0310
+    - name: T3 - chmod a symlink
+      command: fstest chmod ${n1} 0321
       compareout: 0
 
-    - name: T3 - stat fifo
-      command: fstest stat ${n0} mode
-      compareout: 0310
+    - name: T3 - stat a symlink
+      command: fstest stat ${n1} mode
+      compareout: 0321
 
-    - name: T3 - unlink fifo
+    - name: T3 - lstat a file
+      command: fstest lstat ${n0} mode
+      compareout: 0321
+
+    - name: T3 - unlink a file
       command: fstest unlink ${n0}
+      compareout: 0
+
+    - name: T3 - unlink a symlink
+      command: fstest unlink ${n1}
       compareout: 0
 
     - name: T4 - create a file
@@ -146,66 +158,34 @@
       command: fstest stat ${n1} mode
       compareout: 0644
 
-    - name: T4 - chmod a symlink
-      command: fstest chmod ${n1} 0321
+    - name: T4 - lchmod a symlink
+      command: fstest lchmod ${n1} 0321
       compareout: 0
+
+    - name: T4 - lstat a symlink
+      command: fstest lstat ${n1} mode
+      compareout: 0321
+
+    - name: T4 - lchmod a symlink
+      command: fstest lchmod ${n1} 0531
+      compareout: 0
+
+    - name: T4 - lstat a symlink
+      command: fstest lstat ${n1} mode
+      compareout: 0531
+
+    - name: T4 - stat a file
+      command: fstest stat ${n0} mode
+      compareout: 0644
 
     - name: T4 - stat a symlink
       command: fstest stat ${n1} mode
-      compareout: 0321
-
-    - name: T4 - lstat a file
-      command: fstest lstat ${n0} mode
-      compareout: 0321
+      compareout: 0644
 
     - name: T4 - unlink a file
       command: fstest unlink ${n0}
       compareout: 0
 
     - name: T4 - unlink a symlink
-      command: fstest unlink ${n1}
-      compareout: 0
-
-    - name: T5 - create a file
-      command: fstest create ${n0} 0644
-      compareout: 0
-
-    - name: T5 - create a symlink
-      command: fstest symlink ${n0} ${n1}
-      compareout: 0
-
-    - name: T5 - stat a symlink
-      command: fstest stat ${n1} mode
-      compareout: 0644
-
-    - name: T5 - lchmod a symlink
-      command: fstest lchmod ${n1} 0321
-      compareout: 0
-
-    - name: T5 - lstat a symlink
-      command: fstest lstat ${n1} mode
-      compareout: 0321
-
-    - name: T5 - lchmod a symlink
-      command: fstest lchmod ${n1} 0531
-      compareout: 0
-
-    - name: T5 - lstat a symlink
-      command: fstest lstat ${n1} mode
-      compareout: 0531
-
-    - name: T5 - stat a file
-      command: fstest stat ${n0} mode
-      compareout: 0644
-
-    - name: T5 - stat a symlink
-      command: fstest stat ${n1} mode
-      compareout: 0644
-
-    - name: T5 - unlink a file
-      command: fstest unlink ${n0}
-      compareout: 0
-
-    - name: T5 - unlink a symlink
       command: fstest unlink ${n1}
       compareout: 0
