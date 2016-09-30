@@ -78,11 +78,7 @@
 
     - name: test filesystem type
       command: stat -f -L -c %T $mount_dir
-      saveout: $config_dir/testfs_type.out
-
-    - name: check type of mounted filesystem
-      command: grep 'fuseblk' $config_dir/testfs_type.out
-      exit: 0
+      compareout: "fuseblk"
 
 - name: run write/read tests with files in different sizes
   type: sequential
