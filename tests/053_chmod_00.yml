@@ -156,19 +156,19 @@
 
     - name: T4 - lchmod a symlink
       command: fstest lchmod ${n1} 0321
-      compareout: "0"
+      exit: 1
 
     - name: T4 - lstat a symlink
       command: fstest lstat ${n1} mode
-      compareout: "0321"
+      compareout: "0777"
 
     - name: T4 - lchmod a symlink
       command: fstest lchmod ${n1} 0531
-      compareout: "0"
+      exit: 1
 
     - name: T4 - lstat a symlink
       command: fstest lstat ${n1} mode
-      compareout: "0531"
+      compareout: "0777"
 
     - name: T4 - stat a file
       command: fstest stat ${n0} mode
@@ -253,14 +253,14 @@
 
     - name: T8 - lchmod a symlink
       command: fstest lchmod ${n0} 0321
-      compareout: "0"
+      exit: 1
 
     - name: T8 - get ctime from a symlink
       command: fstest lstat ${n0} ctime
       saveout: $config_dir/ctime_t8_2
 
     - name: T8 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/ctime_t8_1 $config_dir/ctime_t8_2
+      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t8_1 $config_dir/ctime_t8_2
       exit: 0
 
     - name: T8 - unlink a symlink
@@ -355,38 +355,38 @@
     # (set-group-ID on execution) in the file's mode shall be cleared upon
     # successful return from chmod().
     - name: T12 - create a file
-      command: fstest create ${n0} 0755
+      command: sudo fstest create ${n0} 0755
       compareout: "0"
 
     - name: T12 - chown a file
-      command: fstest chown ${n0} 65535 65535
+      command: sudo fstest chown ${n0} 65535 65535
       compareout: "0"
 
     - name: T12 - chmod a file
-      command: fstest -u 65535 -g 65535 chmod ${n0} 02755
+      command: sudo fstest -u 65535 -g 65535 chmod ${n0} 02755
       compareout: "0"
 
     - name: T12 - stat a file
-      command: fstest stat ${n0} mode
+      command: sudo fstest stat ${n0} mode
       compareout: "02755"
 
     - name: T12 - chmod a file
-      command: fstest -u 65535 -g 65535 chmod ${n0} 0755
+      command: sudo fstest -u 65535 -g 65535 chmod ${n0} 0755
       compareout: "0"
 
     - name: T12 - stat a file
-      command: fstest stat ${n0} mode
+      command: sudo fstest stat ${n0} mode
       compareout: "0755"
 
     # Unfortunately FreeBSD doesn't clear set-gid bit, but returns EPERM instead.
     - name: T12 - chmod a file
-      command: fstest -u 65535 -g 65534 chmod ${n0} 02755
+      command: sudo fstest -u 65535 -g 65534 chmod ${n0} 02755
       compareout: "0"
 
     - name: T12 - stat a file
-      command: fstest stat ${n0} mode
+      command: sudo fstest stat ${n0} mode
       compareout: "0755"
 
     - name: T12 - unlink a file
-      command: fstest unlink ${n0}
+      command: sudo fstest unlink ${n0}
       compareout: "0"
