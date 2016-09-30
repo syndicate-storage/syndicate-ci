@@ -94,7 +94,7 @@ variety of contexts, arrays can only be used with the `loop_on` construct for
 task blocks.
 
 Scalars are accessed using `$var_name` or `${var_name}` syntax - the latter is
-required if you have a word character immediately next to the variable.   
+required if you have a word character immediately next to the variable.
 
 *Scalars:*
 
@@ -143,7 +143,7 @@ Within a task:
 ### Task blocks
 
 ```
-- name: seqblock 
+- name: seqblock
   type: sequential
   tasks:
     - name: exits_one
@@ -209,16 +209,19 @@ streams to a file.
 
 #### Command Tests
 
-These arguments perform the pass/fail test functionality. 
+These arguments perform the pass/fail test functionality.
 
 `exit` - The exit code that the command should exit with, if it's not the
 default of `0`.  Fail test if the command's exit code is not this value, or if
 `exit` isn't specified, if the exit code isn't `0`.
 
 `checkout` and `checkerr` - compare the `stdout` and `stderr` streams to the
-contents of a file. Fail test if it contents don't match.
+contents of a file. Fail test if it contents don't match.  This is the
+recommended way, as it compares the entire output, handling things like EOL
+characters and binary data.
 
-`compareout` and `compareerr`  - compare the `stdout` and `stderr` streams to
+`compareout` and `compareerr` - compare the `stdout` and `stderr` streams to
 the a string, after running `rstrip()` on the stream to remove EOL characters.
-Fail test if they don't match.
+Fail test if they don't match. Use this only for commands that output a single
+line of text.
 
