@@ -24,25 +24,39 @@ parser.add_argument('t2', help="timestamp2")
 
 args = parser.parse_args()
 
-t1 = 0
-t2 = 0
+t1s = ""
+t2s = ""
 if args.f:
     # read from files
     with open(args.t1, 'r') as f1:
         for line in f1:
-            t1 = int(line)
+            t1s = line
             break
 
     with open(args.t2, 'r') as f2:
         for line in f2:
-            t2 = int(line)
+            t2s = line
             break;
 else:
-    t1 = int(args.t1)
-    t2 = int(args.t2)
+    t1s = args.t1
+    t2s = args.t2
+
+if not t1s.isdigit():
+    exit_fail()
+
+if not t2s.isdigit():
+    exit_fail()
+
+t1 = int(t1s)
+t2 = int(t2s)
 
 if args.op in ["eq", "EQ"]:
     if t1 == t2:
+        exit_success()
+    else:
+        exit_fail()
+elif args.op in ["neq", "NEQ"]:
+    if t1 != t2:
         exit_success()
     else:
         exit_fail()
