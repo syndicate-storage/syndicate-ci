@@ -10,8 +10,14 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
     syndicate-rg \
     syndicate-ag \
     syndicatefs \
+    build-essential \
     fuse \
     valgrind
+
+# Install fstest
+COPY fstest /opt/fstest
+WORKDIR /opt/fstest
+RUN make && cp fstest /usr/bin/ && chmod 777 /usr/bin/fstest
 
 # Join to the fuse group
 RUN usermod -aG fuse syndicate
