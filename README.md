@@ -199,10 +199,10 @@ but as this is not run in a sub-shell, piping or redirection is not supported -
 see `saveout` and `saveerr` below.
 
 `shell` - works like command, but runs in a subshell. This was added mainly for
-fileglobbing abilties and should be used sparingly and only when absolutely
+fileglobbing abilities and should be used sparingly and only when absolutely
 needed.
 
-`infile` - give a filename which will be supplied to stdin of the command.
+`infile` - give a filename which will be supplied to `stdin` of the command.
 
 `saveout` and `saveerr` - not tests, but these save the `stdout` and `stderr`
 streams to a file.
@@ -218,4 +218,7 @@ default of `0`.  Fail test if the command's exit code is not this value, or if
 `checkout` and `checkerr` - compare the `stdout` and `stderr` streams to the
 contents of a file. Fail test if it contents don't match.
 
+`compareout` and `compareerr`  - compare the `stdout` and `stderr` streams to
+the a string, after running `rstrip()` on the stream to remove EOL characters.
+Fail test if they don't match.
 

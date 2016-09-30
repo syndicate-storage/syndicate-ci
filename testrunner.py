@@ -458,13 +458,38 @@ class CommandRunner():
                 sys.exit(1)
 
             if stderr_str == open(checkerr_fname).read():
-                logger.debug("Task '%s' stderr matches contents of '%s'"
-                             % (self.c['name'], checkerr_fname))
+                logger.debug("Task '%s' stderr matches contents of '%s'" %
+                             (self.c['name'], checkerr_fname))
             else:
                 checkerr_fail = ("Task '%s' stderr does not match contents of '%s'" %
                                  (self.c['name'], checkerr_fname))
                 logger.error(checkerr_fail)
                 failures.append(checkerr_fail)
+
+        # check out/err against strings, after rstrip of output
+        if 'compareout' in self.c:
+            cout_rv = replace_vars(self.c['compareout'])
+            if cout_rv == stdout_str.rstrip():
+                logger.debug("Task '%s' stdout matches string of '%s'" %
+                             (self.c['name'], cout_rv))
+
+            else:
+                cout_fail = ("Task '%s' stdout does not match string '%s'" %
+                             (self.c['name'], cout_rv))
+                logger.error(cout_fail)
+                failures.append(cout_fail)
+
+        if 'compareerr' in self.c:
+            cerr_rv = replace_vars(self.c['compareerr'])
+            if cerr_rv == stderr_str.rstrip():
+                logger.debug("Task '%s' stderr matches string of '%s'" %
+                             (self.c['name'], cerr_rv))
+
+            else:
+                cerr_fail = ("Task '%s' stderr does not match string '%s'" %
+                             (self.c['name'], cerr_rv))
+                logger.error(cerr_fail)
+                failures.append(cerr_fail)
 
         if tap_writer:
 
