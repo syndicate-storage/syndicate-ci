@@ -74,5 +74,5 @@
   type: sequential
   tasks:
     - name: make temp dir
-      command: $fstest_path mkdir ${mount_dir}/${n2} 0755
+      command: fstest mkdir ${mount_dir}/${n2} 0755
       exit: 0
