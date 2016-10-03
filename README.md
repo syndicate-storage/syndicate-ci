@@ -149,7 +149,7 @@ Global scope:
 
 Within a `loop_on` task:
 
- - `$<loop name>"` - in addition to identifying the loop name, it can be thought of as the array name, making this interchangeable with `$loop_var`.  For example, if the valueloop is named "_val\_ex_", using `$val_ex` within the task will return the current value of the array, and so will `$loop_var`
+ - `$<loop name>` - in addition to identifying the loop name, it can be thought of as the array name, making this interchangeable with `$loop_var`.  For example, if the valueloop is named "_val\_ex_", using `$val_ex` within the task will return the current value of the array, and so will `$loop_var`
  - `$loop_var` - the current value of the array being looped on.
  - `$loop_index` - the current index (starts with 0) of the array being looped on.
 
