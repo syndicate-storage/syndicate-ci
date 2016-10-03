@@ -242,3 +242,5 @@ the a string, after running `rstrip()` on the stream to remove EOL characters.
 Fail test if they don't match. Use this only for commands that output a single
 line of text.
 
+`partialcheckout` - Same as "checkout" except to determine if the `stdout`
+stream can be found within a file.
