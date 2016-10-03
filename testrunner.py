@@ -35,7 +35,6 @@ logger = logging.getLogger()
 global args
 global r_vars  # dict of replacement vars
 global loop_vars  # dict of arrays of vars to loop tasks on
-global dict_flag
 
 def parse_args():
 
@@ -173,22 +172,6 @@ def valueloop(name, values, varname=None):
                  (varname, len(loop_vars[varname])))
 
 
-def dictloop(name, values, varname=None):
-
-    global loop_vars
-    global dict_flag
-
-    dict_flag = True
-
-    if varname is None:
-        varname = name
-
-    loop_vars[varname] = values
-
-    logger.debug("Created dictionary loop_var '%s' with %d items" %
-                 (varname, len(loop_vars[varname])))
-
-
 def newvar(name, value):
 
     global r_vars
@@ -205,7 +188,7 @@ def replace_vars(string):
     # convert subscript format to dot format, for dictionaries
     string = re.sub(r"\[\'", ".", string)
     string = re.sub(r"\'\]", "", string)
-    
+
     # first capture with explicit {}'s
     rcv = re.compile('\$\{(\w+\.\w+|\w+)\}(?:\W|$)*?')
     rcv_matches = rcv.findall(string)
@@ -217,7 +200,7 @@ def replace_vars(string):
         else:
             logger.error("Unknown variable: '$%s' in '%s'" %
                          (match, string))
-    
+
     # second capture on space/word boundaries with and without dictionary keys
     rsv = re.compile('\$(\w+\.\w+|\w+)(?:\W|$)*?')
     rsv_matches = rsv.findall(string)
@@ -487,6 +470,22 @@ class CommandRunner():
                 logger.error(checkerr_fail)
                 failures.append(checkerr_fail)
 
+        if 'partialcheckout' in self.c:
+            partialcheckout_fname = replace_vars(self.c['partialcheckout'])
+            if not os.path.isfile(partialcheckout_fname):
+                logger.error("Task '%s', nonexistant partialcheckout file '%s'" %
+                             (self.c['name'], partialcheckout_fname))
+                sys.exit(1)
+
+            if stdout_str in open(partialcheckout_fname).read():
+                logger.debug("Task '%s' stdout matches contents within '%s'" %
+                             (self.c['name'], partialcheckout_fname))
+            else:
+                partialcheckout_fail = ("Task '%s' stdout does not match contents of '%s'" %
+                                 (self.c['name'], partialcheckout_fname))
+                logger.error(partialcheckout_fail)
+                failures.append(partialcheckout_fail)
+
         # check out/err against strings, after rstrip of output
         if 'compareout' in self.c:
             cout_rv = replace_vars(str(self.c['compareout']))
@@ -563,14 +562,14 @@ class RunParallel():
 
         for task in taskblock['tasks']:
             for index, loop_var in enumerate(loop_vars[varname]):
-                if dict_flag:
+                if type(loop_var) is dict:                          #check if the first element in the loop_var list is a dictionary
                     for key in loop_var.keys():                     #if dict, for each key in the dictionary
                          varkeystr = "%s.%s" % (varname,key)        #create a r_vars key based on the loop "varname" and dict key using the dot format
                          r_vars[varkeystr] = str(loop_var[key])     #set the dict value and the new key in r_vars to be used in replace_vars
-                         varkeystr = "loop_var.%s" % (key)          #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname"
+                         varkeystr = "loop_var.%s" % (key)          #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname", use dot format
                          r_vars[varkeystr] = str(loop_var[key])
                 else:
-                    varkeystr = str(varname)                        #if not a dict, i.e. basic list, works similar as dict but does not use the dictionary key as part of the loop "varname" key
+                    varkeystr = str(varname)                        #if not a dict, i.e. basic list, does not use the dictionary key as part of the loop "varname" key, does not use dot format
                     r_vars[varkeystr] = str(loop_var)
                     r_vars['loop_var'] = str(loop_var)              #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname"
 
@@ -790,20 +789,6 @@ class TaskBlocksRunner():
 
                 valueloop(vloop['name'], vloop['values'])
 
-        if 'dictloop' in setupb:
-            for vloop in setupb['dictloop']:
-                for req_key in ["name", "values", ]:
-                    if req_key not in vloop:
-                        logger.error("valueloop required key '%s' not found in: %s" %
-                                     (req_key, vloop))
-                        sys.exit(1)
-
-                if not isinstance(vloop['values'], list):
-                    logger.error("non-list values in valueloop: %s" % vloop)
-                    sys.exit(1)
-
-                dictloop(vloop['name'], vloop['values'])
-
     def run_task_blocks(self):
 
         for runner in self.runners:
@@ -841,10 +826,8 @@ if __name__ == "__main__":
     global args
     global r_vars
     global loop_vars
-    global dict_flag
 
     loop_vars = {}
-    dict_flag = False
 
     if args.debug:
         logger.setLevel(logging.DEBUG)
