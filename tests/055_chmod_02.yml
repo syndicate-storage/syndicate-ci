@@ -70,6 +70,12 @@
 - name: run chmod tests 02
   type: sequential
   tasks:
+
+    #expect 0 create ${name255} 0644
+    #expect 0 chmod ${name255} 0620
+    #expect 0620 stat ${name255} mode
+    #expect 0 unlink ${name255}
+    #expect ENAMETOOLONG chmod ${name256} 0620
     - name: T1 - create a file with long filename
       command: fstest create ${name255} 0644
       compareout: "0"
@@ -88,4 +94,4 @@
 
     - name: T1 - chmod a file with long filename
       command: fstest chmod ${name256} 0620
-      exit: 1
+      compareout: "ENAMETOOLONG"

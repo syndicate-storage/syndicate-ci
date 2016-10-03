@@ -70,6 +70,11 @@
 - name: run chmod tests 00
   type: sequential
   tasks:
+    #expect 0 create ${n0} 0644
+    #expect 0644 stat ${n0} mode
+    #expect 0 chmod ${n0} 0111
+    #expect 0111 stat ${n0} mode
+    #expect 0 unlink ${n0}
     - name: T1 - make a file
       command: fstest create ${n0} 0644
       compareout: "0"
@@ -90,6 +95,11 @@
       command: fstest unlink ${n0}
       compareout: "0"
 
+    #expect 0 mkdir ${n0} 0755
+    #expect 0755 stat ${n0} mode
+    #expect 0 chmod ${n0} 0753
+    #expect 0753 stat ${n0} mode
+    #expect 0 rmdir ${n0}
     - name: T2 - make a directory
       command: fstest mkdir ${n0} 0755
       compareout: "0"
@@ -110,6 +120,14 @@
       command: fstest rmdir ${n0}
       compareout: "0"
 
+    #expect 0 create ${n0} 0644
+    #expect 0 symlink ${n0} ${n1}
+    #expect 0644 stat ${n1} mode
+    #expect 0 chmod ${n1} 0321
+    #expect 0321 stat ${n1} mode
+    #expect 0321 lstat ${n0} mode
+    #expect 0 unlink ${n0}
+    #expect 0 unlink ${n1}
     - name: T3 - create a file
       command: fstest create ${n0} 0644
       compareout: "0"
@@ -142,50 +160,83 @@
       command: fstest unlink ${n1}
       compareout: "0"
 
+    # successful chmod(2) updates ctime.
+    #expect 0 create ${n0} 0644
+    #ctime1=`${fstest} stat ${n0} ctime`
+    #sleep 1
+    #expect 0 chmod ${n0} 0111
+    #ctime2=`${fstest} stat ${n0} ctime`
+    #test_check $ctime1 -lt $ctime2
+    #expect 0 unlink ${n0}
     - name: T4 - create a file
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    - name: T4 - create a symlink
-      command: fstest symlink ${n0} ${n1}
+    - name: T4 - get ctime from a file
+      command: fstest stat ${n0} ctime
+      saveout: $config_dir/ctime_t4_1
+
+    - name: T4 - sleep 1sec
+      command: sleep 1s
+
+    - name: T4 - chmod a file
+      command: fstest chmod ${n0} 0111
       compareout: "0"
 
-    - name: T4 - stat a symlink
-      command: fstest stat ${n1} mode
-      compareout: "0644"
+    - name: T4 - get ctime from a file
+      command: fstest stat ${n0} ctime
+      saveout: $config_dir/ctime_t4_2
 
-    - name: T4 - lchmod a symlink
-      command: fstest lchmod ${n1} 0321
-      exit: 1
-
-    - name: T4 - lstat a symlink
-      command: fstest lstat ${n1} mode
-      compareout: "0777"
-
-    - name: T4 - lchmod a symlink
-      command: fstest lchmod ${n1} 0531
-      exit: 1
-
-    - name: T4 - lstat a symlink
-      command: fstest lstat ${n1} mode
-      compareout: "0777"
-
-    - name: T4 - stat a file
-      command: fstest stat ${n0} mode
-      compareout: "0644"
-
-    - name: T4 - stat a symlink
-      command: fstest stat ${n1} mode
-      compareout: "0644"
+    - name: T4 - compare ctimes
+      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/ctime_t4_1 $config_dir/ctime_t4_2
+      exit: 0
 
     - name: T4 - unlink a file
       command: fstest unlink ${n0}
       compareout: "0"
 
-    - name: T4 - unlink a symlink
-      command: fstest unlink ${n1}
+    #expect 0 mkdir ${n0} 0755
+    #ctime1=`${fstest} stat ${n0} ctime`
+    #sleep 1
+    #expect 0 chmod ${n0} 0753
+    #ctime2=`${fstest} stat ${n0} ctime`
+    #test_check $ctime1 -lt $ctime2
+    #expect 0 rmdir ${n0}
+    - name: T5 - create a directory
+      command: fstest mkdir ${n0} 0755
       compareout: "0"
 
+    - name: T5 - get ctime from a directory
+      command: fstest stat ${n0} ctime
+      saveout: $config_dir/ctime_t5_1
+
+    - name: T5 - sleep 1sec
+      command: sleep 1s
+
+    - name: T5 - chmod a directory
+      command: fstest chmod ${n0} 0753
+      compareout: "0"
+
+    - name: T5 - get ctime from a directory
+      command: fstest stat ${n0} ctime
+      saveout: $config_dir/ctime_t5_2
+
+    - name: T5 - compare ctimes
+      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/ctime_t5_1 $config_dir/ctime_t5_2
+      exit: 0
+
+    - name: T5 - rmdir a directory
+      command: fstest rmdir ${n0}
+      compareout: "0"
+
+    # unsuccessful chmod(2) does not update ctime.
+    #expect 0 create ${n0} 0644
+    #ctime1=`${fstest} stat ${n0} ctime`
+    #sleep 1
+    #expect EPERM -u 65534 chmod ${n0} 0111
+    #ctime2=`${fstest} stat ${n0} ctime`
+    #test_check $ctime1 -eq $ctime2
+    #expect 0 unlink ${n0}
     - name: T6 - create a file
       command: fstest create ${n0} 0644
       compareout: "0"
@@ -198,21 +249,29 @@
       command: sleep 1s
 
     - name: T6 - chmod a file
-      command: fstest chmod ${n0} 0111
-      compareout: "0"
+      command: fstest -u 65534 chmod ${n0} 0111
+      #expect: EPERM
+      exit: 1
 
     - name: T6 - get ctime from a file
       command: fstest stat ${n0} ctime
       saveout: $config_dir/ctime_t6_2
 
     - name: T6 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/ctime_t6_1 $config_dir/ctime_t6_2
+      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t6_1 $config_dir/ctime_t6_2
       exit: 0
 
     - name: T6 - unlink a file
       command: fstest unlink ${n0}
       compareout: "0"
 
+    #expect 0 mkdir ${n0} 0755
+    #ctime1=`${fstest} stat ${n0} ctime`
+    #sleep 1
+    #expect EPERM -u 65534 chmod ${n0} 0753
+    #ctime2=`${fstest} stat ${n0} ctime`
+    #test_check $ctime1 -eq $ctime2
+    #expect 0 rmdir ${n0}
     - name: T7 - create a directory
       command: fstest mkdir ${n0} 0755
       compareout: "0"
@@ -225,126 +284,17 @@
       command: sleep 1s
 
     - name: T7 - chmod a directory
-      command: fstest chmod ${n0} 0753
-      compareout: "0"
+      command: fstest -u 65534 chmod ${n0} 0753
+      exit: 1
 
     - name: T7 - get ctime from a directory
       command: fstest stat ${n0} ctime
       saveout: $config_dir/ctime_t7_2
 
     - name: T7 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/ctime_t7_1 $config_dir/ctime_t7_2
+      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t7_1 $config_dir/ctime_t7_2
       exit: 0
 
     - name: T7 - rmdir a directory
       command: fstest rmdir ${n0}
-      compareout: "0"
-
-    - name: T8 - create a symlink from a non-existing file
-      command: fstest symlink ${n1} ${n0}
-      compareout: "0"
-
-    - name: T8 - get ctime from a symlink
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/ctime_t8_1
-
-    - name: T8 - sleep 1sec
-      command: sleep 1s
-
-    - name: T8 - lchmod a symlink
-      command: fstest lchmod ${n0} 0321
-      exit: 1
-
-    - name: T8 - get ctime from a symlink
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/ctime_t8_2
-
-    - name: T8 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t8_1 $config_dir/ctime_t8_2
-      exit: 0
-
-    - name: T8 - unlink a symlink
-      command: fstest unlink ${n0}
-      compareout: "0"
-
-    # unsuccessful chmod(2) does not update ctime.
-    - name: T9 - create a file
-      command: fstest create ${n0} 0644
-      compareout: "0"
-
-    - name: T9 - get ctime from a file
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/ctime_t9_1
-
-    - name: T9 - sleep 1sec
-      command: sleep 1s
-
-    - name: T9 - chmod a file
-      command: fstest -u 65534 chmod ${n0} 0111
-      exit: 1
-
-    - name: T9 - get ctime from a file
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/ctime_t9_2
-
-    - name: T9 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t9_1 $config_dir/ctime_t9_2
-      exit: 0
-
-    - name: T9 - unlink a file
-      command: fstest unlink ${n0}
-      compareout: "0"
-
-    - name: T10 - create a directory
-      command: fstest mkdir ${n0} 0755
-      compareout: "0"
-
-    - name: T10 - get ctime from a directory
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/ctime_t10_1
-
-    - name: T10 - sleep 1sec
-      command: sleep 1s
-
-    - name: T10 - chmod a directory
-      command: fstest -u 65534 chmod ${n0} 0753
-      exit: 1
-
-    - name: T10 - get ctime from a directory
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/ctime_t10_2
-
-    - name: T10 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t10_1 $config_dir/ctime_t10_2
-      exit: 0
-
-    - name: T10 - rmdir a directory
-      command: fstest rmdir ${n0}
-      compareout: "0"
-
-    - name: T11 - create a symlink from a non-existing file
-      command: fstest symlink ${n1} ${n0}
-      compareout: "0"
-
-    - name: T11 - get ctime from a symlink
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/ctime_t11_1
-
-    - name: T11 - sleep 1sec
-      command: sleep 1s
-
-    - name: T11 - lchmod a symlink
-      command: fstest -u 65534 lchmod ${n0} 0321
-      exit: 1
-
-    - name: T11 - get ctime from a symlink
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/ctime_t11_2
-
-    - name: T11 - compare ctimes
-      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/ctime_t11_1 $config_dir/ctime_t11_2
-      exit: 0
-
-    - name: T11 - unlink a symlink
-      command: fstest unlink ${n0}
       compareout: "0"
