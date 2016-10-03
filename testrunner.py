@@ -560,8 +560,8 @@ class RunParallel():
 
         tasks = []
 
-        for task in taskblock['tasks']:
-            for index, loop_var in enumerate(loop_vars[varname]):
+        for index, loop_var in enumerate(loop_vars[varname]):
+             for task in taskblock['tasks']:
                 if type(loop_var) is dict:                          #check if the first element in the loop_var list is a dictionary
                     for key in loop_var.keys():                     #if dict, for each key in the dictionary
                          varkeystr = "%s.%s" % (varname,key)        #create a r_vars key based on the loop "varname" and dict key using the dot format
