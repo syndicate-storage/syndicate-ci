@@ -3,10 +3,11 @@
 - name: setup_chmod_01
   type: setup
   tmpdirs:
-    - name: 054_chmod_01_fs
+    - name: 061_chmod_01_fs
       varname: config_dir
-    - name: 054_chmod_01_fs_mount
+    - name: 061_chmod_01_fs_mount
       varname: mount_dir
+      mode: 0755
   randnames:
     - test_volume
     - test_rg
@@ -70,28 +71,23 @@
 - name: run chmod tests 01
   type: sequential
   tasks:
-      
-    # expect 0 mkdir ${n0} 0755
-    # expect 0 create ${n0}/${n1} 0644
-    # expect ENOTDIR chmod ${n0}/${n1}/test 0644
-    # expect 0 unlink ${n0}/${n1}
-    # expect 0 rmdir ${n0}
-    - name: T1 - make a directory
+    - name: T1 - expect 0 mkdir ${n0} 0755
       command: fstest mkdir ${n0} 0755
       compareout: "0"
 
-    - name: T1 - create a file
+    - name: T1 - expect 0 create ${n0}/${n1} 0644
       command: fstest create ${n0}/${n1} 0644
       compareout: "0"
 
-    - name: T1 - chmod a file under a file (impossible)
+    - name: T1 - expect ENOTDIR chmod ${n0}/${n1}/test 0644
       command: fstest chmod ${n0}/${n1}/test 0644
       compareout: "ENOTDIR"
+      exit: 1
 
-    - name: T1 - unlink a file under a directory
+    - name: T1 - expect 0 unlink ${n0}/${n1}
       command: fstest unlink ${n0}/${n1}
       compareout: "0"
 
-    - name: T1 - rmdir a directory
+    - name: T1 - expect 0 rmdir ${n0}
       command: fstest rmdir ${n0}
       compareout: "0"
