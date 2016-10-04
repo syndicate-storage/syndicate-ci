@@ -7,6 +7,7 @@
       varname: config_dir
     - name: 063_chmod_03_fs_mount
       varname: mount_dir
+      mode: 0755
   randnames:
     - test_volume
     - test_rg
