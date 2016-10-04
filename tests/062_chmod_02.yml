@@ -3,10 +3,11 @@
 - name: setup_chmod_02
   type: setup
   tmpdirs:
-    - name: 055_chmod_02_fs
+    - name: 062_chmod_02_fs
       varname: config_dir
-    - name: 055_chmod_02_fs_mount
+    - name: 062_chmod_02_fs_mount
       varname: mount_dir
+      mode: 0755
   randnames:
     - test_volume
     - test_rg
@@ -70,28 +71,23 @@
 - name: run chmod tests 02
   type: sequential
   tasks:
-
-    #expect 0 create ${name255} 0644
-    #expect 0 chmod ${name255} 0620
-    #expect 0620 stat ${name255} mode
-    #expect 0 unlink ${name255}
-    #expect ENAMETOOLONG chmod ${name256} 0620
-    - name: T1 - create a file with long filename
+    - name: T1 - expect 0 create ${name255} 0644
       command: fstest create ${name255} 0644
       compareout: "0"
 
-    - name: T1 - chmod a file
+    - name: T1 - expect 0 chmod ${name255} 0620
       command: fstest chmod ${name255} 0620
       compareout: "0"
 
-    - name: T1 - stat a file
+    - name: T1 - expect 0620 stat ${name255} mode
       command: fstest stat ${name255} mode
       compareout: "0620"
 
-    - name: T1 - unlink a file
+    - name: T1 - expect 0 unlink ${name255}
       command: fstest unlink ${name255}
       compareout: "0"
 
-    - name: T1 - chmod a file with long filename
+    - name: T1 - expect ENAMETOOLONG chmod ${name256} 0620
       command: fstest chmod ${name256} 0620
       compareout: "ENAMETOOLONG"
+      exit: 1
