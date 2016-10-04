@@ -218,6 +218,7 @@
     - name: T11 - expect EPERM -u 65534 chmod ${n0} 0111
       command: sudo fstest -u 65534 chmod ${n0} 0111
       compareout: "EPERM"
+      exit: 1
 
     - name: T11 - ctime2=`${fstest} stat ${n0} ctime`
       command: fstest stat ${n0} ctime
@@ -246,6 +247,7 @@
     - name: T12 - expect EPERM -u 65534 chmod ${n0} 0753
       command: sudo fstest -u 65534 chmod ${n0} 0753
       compareout: "EPERM"
+      exit: 1
 
     - name: T12 - ctime2=`${fstest} stat ${n0} ctime`
       command: fstest stat ${n0} ctime
