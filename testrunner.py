@@ -95,18 +95,20 @@ def import_env():
         logger.debug(" %s=%s" % (e_key, r_vars[e_key]))
 
 
-def tmpdir(name, varname=None):
+def tmpdir(name, varname=None, mode=0700):
 
     global r_vars
 
     testprefix = "synd-" + name + "-"
     testdir = tempfile.mkdtemp(dir="/tmp", prefix=testprefix)
 
+    os.chmod(testdir, mode)
+
     if varname is None:
         varname = name
     r_vars[varname] = testdir
 
-    logger.debug("Created tmpdir '%s', with path: '%s'" % (varname, testdir))
+    logger.debug("Created tmpdir '%s', with path: '%s', with mode: '%o'" % (varname, testdir, mode))
 
 
 def randstring(size):
@@ -748,7 +750,10 @@ class TaskBlocksRunner():
 
         if 'tmpdirs' in setupb:
             for tdir in setupb['tmpdirs']:
-                tmpdir(tdir['name'], tdir['varname'])
+                if 'mode' in tdir:
+                    tmpdir(tdir['name'], tdir['varname'], tdir['mode'])
+                else:
+                    tmpdir(tdir['name'], tdir['varname'])
 
         if 'randnames' in setupb:
             for rname in setupb['randnames']:
