@@ -13,8 +13,9 @@
     - test_rg
     - test_ug
   vars:
-    - name: name255
-      value: $mount_dir/_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1234
+    # docker allows filename max 242
+    - name: name242
+      value: $mount_dir/_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1
     - name: name256
       value: $mount_dir/_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_12345
     - name: syndicate_conf
@@ -71,20 +72,20 @@
 - name: run chmod tests 02
   type: sequential
   tasks:
-    - name: T1 - expect 0 create ${name255} 0644
-      command: fstest create ${name255} 0644
+    - name: T1 - expect 0 create ${name242} 0644
+      command: fstest create ${name242} 0644
       compareout: "0"
 
-    - name: T1 - expect 0 chmod ${name255} 0620
-      command: fstest chmod ${name255} 0620
+    - name: T1 - expect 0 chmod ${name242} 0620
+      command: fstest chmod ${name242} 0620
       compareout: "0"
 
-    - name: T1 - expect 0620 stat ${name255} mode
-      command: fstest stat ${name255} mode
+    - name: T1 - expect 0620 stat ${name242} mode
+      command: fstest stat ${name242} mode
       compareout: "0620"
 
-    - name: T1 - expect 0 unlink ${name255}
-      command: fstest unlink ${name255}
+    - name: T1 - expect 0 unlink ${name242}
+      command: fstest unlink ${name242}
       compareout: "0"
 
     - name: T1 - expect ENAMETOOLONG chmod ${name256} 0620

@@ -13,10 +13,9 @@
     - test_rg
     - test_ug
   vars:
-    - name: name255
-      value: _123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1234
-    - name: path1021
-      value: ${name255}/${name255}/${name255}/${name253}
+    # docker allows filename max 242
+    - name: name242
+      value: _123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1
     - name: syndicate_conf
       value: $config_dir/syndicate.conf
     - name: rg_driver
@@ -71,51 +70,46 @@
 - name: run chmod tests 03
   type: sequential
   tasks:
-    - name: T1 - expect 0 mkdir $mount_dir/${name255} 0755
-      command: fstest mkdir $mount_dir/${name255} 0755
+    - name: T1 - expect 0 mkdir $mount_dir/${name242} 0755
+      command: fstest mkdir $mount_dir/${name242} 0755
       compareout: "0"
 
-    - name: T1 - expect 0 mkdir $mount_dir/${name255}/${name255} 0755
-      command: fstest mkdir $mount_dir/${name255}/${name255} 0755
+    - name: T1 - expect 0 mkdir $mount_dir/${name242}/${name242} 0755
+      command: fstest mkdir $mount_dir/${name242}/${name242} 0755
       compareout: "0"
 
-    - name: T1 - expect 0 mkdir $mount_dir/${name255}/${name255}/${name255} 0755
-      command: fstest mkdir $mount_dir/${name255}/${name255}/${name255} 0755
+    - name: T1 - expect 0 mkdir $mount_dir/${name242}/${name242}/${name242} 0755
+      command: fstest mkdir $mount_dir/${name242}/${name242}/${name242} 0755
       compareout: "0"
 
-    - name: T1 - expect 0 create $mount_dir/${name255}/${name255}/${name255}/test 0644
-      command: fstest create $mount_dir/${name255}/${name255}/${name255}/test 0644
+    - name: T1 - expect 0 create $mount_dir/${name242}/${name242}/${name242}/test 0644
+      command: fstest create $mount_dir/${name242}/${name242}/${name242}/test 0644
       compareout: "0"
 
-    - name: T1 - expect 0 chmod $mount_dir/${name255}/${name255}/${name255}/test 0642
-      command: fstest chmod $mount_dir/${name255}/${name255}/${name255}/test 0642
+    - name: T1 - expect 0 chmod $mount_dir/${name242}/${name242}/${name242}/test 0642
+      command: fstest chmod $mount_dir/${name242}/${name242}/${name242}/test 0642
       compareout: "0"
 
-    - name: T1 - expect 0 unlink $mount_dir/${name255}/${name255}/${name255}/test
-      command: fstest unlink $mount_dir/${name255}/${name255}/${name255}/test
+    - name: T1 - expect 0 unlink $mount_dir/${name242}/${name242}/${name242}/test
+      command: fstest unlink $mount_dir/${name242}/${name242}/${name242}/test
       compareout: "0"
 
-    - name: T1 - expect 0 create $mount_dir/${name255}/${name255}/${name255}/${name255} 0644
-      command: fstest create $mount_dir/${name255}/${name255}/${name255}/${name255} 0644
+    - name: T1 - expect 0 create $mount_dir/${name242}/${name242}/${name242}/${name242} 0644
+      command: fstest create $mount_dir/${name242}/${name242}/${name242}/${name242} 0644
       compareout: "0"
 
-    - name: T1 - expect ENAMETOOLONG chmod too_long 0642
-      command: fstest chmod $mount_dir/${name255}/${name255}/${name255}/${name255} 0642
-      compareout: "ENAMETOOLONG"
-      exit: 1
-
-    - name: T1 - expect 0 unlink $mount_dir/${name255}/${name255}/${name255}/${name255}
-      command: fstest unlink $mount_dir/${name255}/${name255}/${name255}/${name255}
+    - name: T1 - expect 0 unlink $mount_dir/${name242}/${name242}/${name242}/${name242}
+      command: fstest unlink $mount_dir/${name242}/${name242}/${name242}/${name242}
       compareout: "0"
 
-    - name: T1 - expect 0 rmdir $mount_dir/${name255}/${name255}/${name255}
-      command: fstest rmdir $mount_dir/${name255}/${name255}/${name255}
+    - name: T1 - expect 0 rmdir $mount_dir/${name242}/${name242}/${name242}
+      command: fstest rmdir $mount_dir/${name242}/${name242}/${name242}
       compareout: "0"
 
-    - name: T1 - expect 0 rmdir $mount_dir/${name255}/${name255}
-      command: fstest rmdir $mount_dir/${name255}/${name255}
+    - name: T1 - expect 0 rmdir $mount_dir/${name242}/${name242}
+      command: fstest rmdir $mount_dir/${name242}/${name242}
       compareout: "0"
 
-    - name: T1 - expect 0 rmdir $mount_dir/${name255}
-      command: fstest rmdir $mount_dir/${name255}
+    - name: T1 - expect 0 rmdir $mount_dir/${name242}
+      command: fstest rmdir $mount_dir/${name242}
       compareout: "0"
