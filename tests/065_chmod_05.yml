@@ -78,7 +78,7 @@
       compareout: "0"
 
     - name: T1 - expect 0 chown ${n1} 65534 65534
-      command: fstest chown ${n1} 65534 65534
+      command: sudo fstest chown ${n1} 65534 65534
       compareout: "0"
 
     - name: T1 - expect 0 -u 65534 -g 65534 create ${n1}/${n2} 0644
@@ -94,7 +94,7 @@
       compareout: "0642"
 
     - name: T1 - expect 0 chmod ${n1} 0644
-      command: fstest chmod ${n1} 0644
+      command: sudo fstest chmod ${n1} 0644
       compareout: "0"
 
     - name: T1 - expect EACCES -u 65534 -g 65534 chmod ${n1}/${n2} 0620
@@ -103,7 +103,7 @@
       exit: 1
 
     - name: T1 - expect 0 chmod ${n1} 0755
-      command: fstest chmod ${n1} 0755
+      command: sudo fstest chmod ${n1} 0755
       compareout: "0"
 
     - name: T1 - expect 0 -u 65534 -g 65534 chmod ${n1}/${n2} 0420
@@ -119,5 +119,5 @@
       compareout: "0"
 
     - name: T1 - expect 0 rmdir ${n1}
-      command: fstest rmdir ${n1}
+      command: sudo fstest rmdir ${n1}
       compareout: "0"
