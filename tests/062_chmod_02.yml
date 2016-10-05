@@ -72,23 +72,29 @@
 - name: run chmod tests 02
   type: sequential
   tasks:
-    - name: T1 - expect 0 create ${name242} 0644
+    # expect 0 create ${name242} 0644
+    - name: T1 - expect 0 create [name242] 0644
       command: fstest create ${name242} 0644
       compareout: "0"
 
-    - name: T1 - expect 0 chmod ${name242} 0620
+    # expect 0 chmod ${name242} 0620
+    - name: T1 - expect 0 chmod [name242] 0620
       command: fstest chmod ${name242} 0620
       compareout: "0"
 
-    - name: T1 - expect 0620 stat ${name242} mode
+    # expect 0620 stat ${name242} mode
+    - name: T1 - expect 0620 stat [name242] mode
       command: fstest stat ${name242} mode
       compareout: "0620"
 
-    - name: T1 - expect 0 unlink ${name242}
+    # expect 0 unlink ${name242}
+    - name: T1 - expect 0 unlink [name242]
       command: fstest unlink ${name242}
       compareout: "0"
 
-    - name: T1 - expect ENAMETOOLONG chmod ${name256} 0620
+    # expect ENAMETOOLONG chmod ${name256} 0620
+    - name: T1 - expect ENAMETOOLONG chmod [name256] 0620
       command: fstest chmod ${name256} 0620
       compareout: "ENAMETOOLONG"
       exit: 1
+
