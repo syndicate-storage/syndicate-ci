@@ -70,46 +70,58 @@
 - name: run chmod tests 03
   type: sequential
   tasks:
-    - name: T1 - expect 0 mkdir $mount_dir/${name242} 0755
+    # expect 0 mkdir ${mount_dir}/${name242} 0755
+    - name: T1 - expect 0 mkdir [mount_dir]/[name242] 0755
       command: fstest mkdir $mount_dir/${name242} 0755
       compareout: "0"
 
-    - name: T1 - expect 0 mkdir $mount_dir/${name242}/${name242} 0755
+    # expect 0 mkdir $mount_dir/${name242}/${name242} 0755
+    - name: T1 - expect 0 mkdir [mount_dir]/[name242]/[name242] 0755
       command: fstest mkdir $mount_dir/${name242}/${name242} 0755
       compareout: "0"
 
-    - name: T1 - expect 0 mkdir $mount_dir/${name242}/${name242}/${name242} 0755
+    # expect 0 mkdir $mount_dir/${name242}/${name242}/${name242} 0755
+    - name: T1 - expect 0 mkdir [mount_dir]/[name242]/[name242]/[name242] 0755
       command: fstest mkdir $mount_dir/${name242}/${name242}/${name242} 0755
       compareout: "0"
 
-    - name: T1 - expect 0 create $mount_dir/${name242}/${name242}/${name242}/test 0644
+    # expect 0 create $mount_dir/${name242}/${name242}/${name242}/test 0644
+    - name: T1 - expect 0 create [mount_dir]/[name242]/[name242]/[name242]/test 0644
       command: fstest create $mount_dir/${name242}/${name242}/${name242}/test 0644
       compareout: "0"
 
-    - name: T1 - expect 0 chmod $mount_dir/${name242}/${name242}/${name242}/test 0642
+    # expect 0 chmod $mount_dir/${name242}/${name242}/${name242}/test 0642
+    - name: T1 - expect 0 chmod [mount_dir]/[name242]/[name242]/[name242]/test 0642
       command: fstest chmod $mount_dir/${name242}/${name242}/${name242}/test 0642
       compareout: "0"
 
-    - name: T1 - expect 0 unlink $mount_dir/${name242}/${name242}/${name242}/test
+    # expect 0 unlink $mount_dir/${name242}/${name242}/${name242}/test
+    - name: T1 - expect 0 unlink [mount_dir]/[name242]/[name242]/[name242]/test
       command: fstest unlink $mount_dir/${name242}/${name242}/${name242}/test
       compareout: "0"
 
-    - name: T1 - expect 0 create $mount_dir/${name242}/${name242}/${name242}/${name242} 0644
+    # expect 0 create $mount_dir/${name242}/${name242}/${name242}/${name242} 0644
+    - name: T1 - expect 0 create [mount_dir]/[name242]/[name242]/[name242]/[name242] 0644
       command: fstest create $mount_dir/${name242}/${name242}/${name242}/${name242} 0644
       compareout: "0"
 
-    - name: T1 - expect 0 unlink $mount_dir/${name242}/${name242}/${name242}/${name242}
+    # expect 0 unlink $mount_dir/${name242}/${name242}/${name242}/${name242}
+    - name: T1 - expect 0 unlink [mount_dir]/[name242]/[name242]/[name242]/[name242]
       command: fstest unlink $mount_dir/${name242}/${name242}/${name242}/${name242}
       compareout: "0"
 
-    - name: T1 - expect 0 rmdir $mount_dir/${name242}/${name242}/${name242}
+    # expect 0 rmdir $mount_dir/${name242}/${name242}/${name242}
+    - name: T1 - expect 0 rmdir [mount_dir]/[name242]/[name242]/[name242]
       command: fstest rmdir $mount_dir/${name242}/${name242}/${name242}
       compareout: "0"
 
-    - name: T1 - expect 0 rmdir $mount_dir/${name242}/${name242}
+    # expect 0 rmdir $mount_dir/${name242}/${name242}
+    - name: T1 - expect 0 rmdir [mount_dir]/[name242]/[name242]
       command: fstest rmdir $mount_dir/${name242}/${name242}
       compareout: "0"
 
-    - name: T1 - expect 0 rmdir $mount_dir/${name242}
+    # expect 0 rmdir $mount_dir/${name242}
+    - name: T1 - expect 0 rmdir [mount_dir]/[name242]
       command: fstest rmdir $mount_dir/${name242}
       compareout: "0"
+

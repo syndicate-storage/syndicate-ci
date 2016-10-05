@@ -71,20 +71,25 @@
 - name: run chmod tests 04
   type: sequential
   tasks:
-    - name: T1 - expect 0 mkdir ${n0} 0755
+    # expect 0 mkdir ${n0} 0755
+    - name: T1 - expect 0 mkdir [n0] 0755
       command: fstest mkdir ${n0} 0755
       compareout: "0"
 
-    - name: T1 - expect ENOENT chmod ${n0}/${n1}/test 0644
+    # expect ENOENT chmod ${n0}/${n1}/test 0644
+    - name: T1 - expect ENOENT chmod [n0]/[n1]/test 0644
       command: fstest chmod ${n0}/${n1}/test 0644
       compareout: "ENOENT"
       exit: 1
 
-    - name: T1 - expect ENOENT chmod ${n0}/${n1} 0644
+    # expect ENOENT chmod ${n0}/${n1} 0644
+    - name: T1 - expect ENOENT chmod [n0]/[n1] 0644
       command: fstest chmod ${n0}/${n1} 0644
       compareout: "ENOENT"
       exit: 1
 
-    - name: T1 - expect 0 rmdir ${n0}
+    # expect 0 rmdir ${n0}
+    - name: T1 - expect 0 rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "0"
+
