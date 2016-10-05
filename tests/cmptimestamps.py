@@ -9,6 +9,10 @@ def exit_success():
     print 0
     sys.exit(0)
 
+def exit_inputfail():
+    print 2
+    sys.exit(2)
+
 def exit_fail():
     print 1
     sys.exit(1)
@@ -30,22 +34,22 @@ if args.f:
     # read from files
     with open(args.t1, 'r') as f1:
         for line in f1:
-            t1s = line
+            t1s = line.strip()
             break
 
     with open(args.t2, 'r') as f2:
         for line in f2:
-            t2s = line
+            t2s = line.strip()
             break;
 else:
     t1s = args.t1
     t2s = args.t2
 
 if not t1s.isdigit():
-    exit_fail()
+    exit_inputfail()
 
 if not t2s.isdigit():
-    exit_fail()
+    exit_inputfail()
 
 t1 = int(t1s)
 t2 = int(t2s)
