@@ -14,20 +14,25 @@ This repo contains the framework for testing Syndicate under Jenkins CI.
 ## Running tests manually
 
 The tests are run with `testrunner.py`, which reads YAML files (syntax below),
-runs the tests and generates output.
-
-This requires that `pyyaml` be installed.  Usually available as `python-yaml`
-or similar from your friendly package manager.
+runs the tests and generates output.  _This requires that `pyyaml` be installed.  Usually available as `python-yaml` or similar from your friendly package manager._
 
 There's a convenience script, `testwrapper.sh` that will run all the tests
-matching `tests/*.yml`, put their TAP output in `results` and the output of the
-commands in `output`
+matching `tests/*.yml`, it puts their TAP output in `results` and the output of the commands in `output`
 
-## Adding tests
+The `testwrapper.sh` script can also run individual tests and can execute the testrunner.py script in the python debugger.  The testwrapper.sh syntax is as follows:
 
-Add tests to the `tests` folder, named in the format `###_description.yml`,
-using the test syntax specified below.
+### testwrapper.sh command
+```
+usage: testwrapper.sh [-d] [-i] [-n <test number>]
 
+   -d     Debug testrunner.py
+   
+   -i     Interactively run testwrapper.sh, asks (y/n) whether to run each test
+   
+   -n number
+          The test number specified
+          Either "-n 1" or "-n 001" would run the "001_setup.yml" test
+```
 
 ### testrunner.py command
 
@@ -49,6 +54,10 @@ optional arguments:
   -f TIME_FORMAT, --time_format TIME_FORMAT
                         specify a strftime() format
 ```
+## Adding tests
+
+Add tests to the `tests` folder, named in the format `###_description.yml`,
+using the test syntax specified below.
 
 ## Tests file syntax
 
@@ -82,6 +91,13 @@ The syntax of the testing files has two block types, `setup` and `tasks`.
         - larry
         - moe
         - curly
+  valueloop:
+    - name: val_dictionary
+      values:
+        - start: 0
+          end: 4096
+        - start: 0
+          end: 8192
 ```
 
 Setup is used to define variables, create testing directories, and files with
@@ -113,7 +129,7 @@ an array
 `seqloop` - generate `quantity` numbers, with a selectable `start`
 (default is `0`) and step (default is `1`) size.
 
-`valueloop` - use the `values` list supplied as an array
+`valueloop` - use the `values` list supplied as an array or array (list) of dictionaries.  Declare the name of the valueloop with _"name:"_
 
 Note that while `setup` value assignments can be used immediately, they always
 are evaluated in groups in the order shown above within a setup block.  For
@@ -133,8 +149,9 @@ Global scope:
 
 Within a `loop_on` task:
 
- - `$loop_var` - set to the value of the array being looped on.
- - `$loop_index` - set to the index (starts with 0) of the array being looped on.
+ - `$<loop name>` - in addition to identifying the loop name, it can be thought of as the array name, making this interchangeable with `$loop_var`.  For example, if the valueloop is named "_val\_ex_", using `$val_ex` within the task will return the current value of the array, and so will `$loop_var`
+ - `$loop_var` - the current value of the array being looped on.
+ - `$loop_index` - the current index (starts with 0) of the array being looped on.
 
 Within a task:
 
@@ -185,9 +202,9 @@ task blocks have completed, the tasks within are are terminated with `SIGTERM`.
 `loop_on` can be included in a task block to cause multiple copies of the same
 command to be run, when provided an array of values to loop over.
 
-There are two variables set each time the loop is run, `$loop_var` and
-`$loop_index`, which correspondingly have a value from the array and the
-current loop number (starting at 0).
+There are certain variables set each time the loop is run, `$<valueloop name>`, `$loop_var` and `$loop_index`, which correspondingly have a value from the array and the current loop number (starting at 0).
+
+If the valueloop array consists of dictionaries, the values corresponding to the dictionary keys can be addressed using either the dot or subscript format.  For example, `$val_dictionary.start` or `$val_dictionary['start']` identifies the dictionary values corresponding to the "start" keys described in the "setup blocks" example above.
 
 
 ### Task Definitions
@@ -225,3 +242,5 @@ the a string, after running `rstrip()` on the stream to remove EOL characters.
 Fail test if they don't match. Use this only for commands that output a single
 line of text.
 
+`partialcheckout` - Same as "checkout" except to determine if the `stdout`
+stream can be found within a file.

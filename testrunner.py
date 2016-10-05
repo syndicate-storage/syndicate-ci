@@ -36,7 +36,6 @@ global args
 global r_vars  # dict of replacement vars
 global loop_vars  # dict of arrays of vars to loop tasks on
 
-
 def parse_args():
 
     global args
@@ -188,24 +187,29 @@ def replace_vars(string):
 
     global r_vars
 
-    # two captures, on space/word boundaries, one with explicit {}'s
-    rsv = re.compile('(?:\W|^)\$(\w+)(?:\W|$)*?')
-    rsv_matches = rsv.findall(string)
+    # convert subscript format to dot format, for dictionaries
+    string = re.sub(r"\[\'", ".", string)
+    string = re.sub(r"\'\]", "", string)
 
-    for match in rsv_matches:
-        if match in r_vars:
-            rr = re.compile('\$%s' % match)
-            string = rr.sub(r_vars[match], string, count=1)
-        else:
-            logger.error("Unknown variable: '$%s' in '%s'" %
-                         (match, string))
-
-    rcv = re.compile('\$\{(\w+)\}')
+    # first capture with explicit {}'s
+    rcv = re.compile('\$\{(\w+\.\w+|\w+)\}(?:\W|$)*?')
     rcv_matches = rcv.findall(string)
 
     for match in rcv_matches:
         if match in r_vars:
             rr = re.compile('\$\{%s\}' % match)
+            string = rr.sub(r_vars[match], string, count=1)
+        else:
+            logger.error("Unknown variable: '$%s' in '%s'" %
+                         (match, string))
+
+    # second capture on space/word boundaries with and without dictionary keys
+    rsv = re.compile('\$(\w+\.\w+|\w+)(?:\W|$)*?')
+    rsv_matches = rsv.findall(string)
+
+    for match in rsv_matches:
+        if match in r_vars:
+            rr = re.compile('\$%s' % match)
             string = rr.sub(r_vars[match], string, count=1)
         else:
             logger.error("Unknown variable: '$%s' in '%s'" %
@@ -468,6 +472,22 @@ class CommandRunner():
                 logger.error(checkerr_fail)
                 failures.append(checkerr_fail)
 
+        if 'partialcheckout' in self.c:
+            partialcheckout_fname = replace_vars(self.c['partialcheckout'])
+            if not os.path.isfile(partialcheckout_fname):
+                logger.error("Task '%s', nonexistant partialcheckout file '%s'" %
+                             (self.c['name'], partialcheckout_fname))
+                sys.exit(1)
+
+            if stdout_str in open(partialcheckout_fname).read():
+                logger.debug("Task '%s' stdout matches contents within '%s'" %
+                             (self.c['name'], partialcheckout_fname))
+            else:
+                partialcheckout_fail = ("Task '%s' stdout does not match contents of '%s'" %
+                                 (self.c['name'], partialcheckout_fname))
+                logger.error(partialcheckout_fail)
+                failures.append(partialcheckout_fail)
+
         # check out/err against strings, after rstrip of output
         if 'compareout' in self.c:
             cout_rv = replace_vars(str(self.c['compareout']))
@@ -543,11 +563,19 @@ class RunParallel():
         tasks = []
 
         for index, loop_var in enumerate(loop_vars[varname]):
-            for task in taskblock['tasks']:
+             for task in taskblock['tasks']:
+                if type(loop_var) is dict:                          #check if the first element in the loop_var list is a dictionary
+                    for key in loop_var.keys():                     #if dict, for each key in the dictionary
+                         varkeystr = "%s.%s" % (varname,key)        #create a r_vars key based on the loop "varname" and dict key using the dot format
+                         r_vars[varkeystr] = str(loop_var[key])     #set the dict value and the new key in r_vars to be used in replace_vars
+                         varkeystr = "loop_var.%s" % (key)          #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname", use dot format
+                         r_vars[varkeystr] = str(loop_var[key])
+                else:
+                    varkeystr = str(varname)                        #if not a dict, i.e. basic list, does not use the dictionary key as part of the loop "varname" key, does not use dot format
+                    r_vars[varkeystr] = str(loop_var)
+                    r_vars['loop_var'] = str(loop_var)              #maintain the original "loop_var" name for backward compatibility, i.e. use "loop_var" instead of the specified loop "varname"
 
                 r_vars['loop_index'] = str(index)
-                r_vars['loop_var'] = str(loop_var)
-
                 modified_task = task.copy()
                 modified_task['command'] = replace_vars(task['command'])
 
