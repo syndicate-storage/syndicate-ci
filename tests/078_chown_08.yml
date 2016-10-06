@@ -1,11 +1,11 @@
 ---
 
-- name: setup_chmod_04
+- name: setup_chown_08
   type: setup
   tmpdirs:
-    - name: 064_chmod_04_fs
+    - name: 078_chown_08_fs
       varname: config_dir
-    - name: 064_chmod_04_fs_mount
+    - name: 078_chown_08_fs_mount
       varname: mount_dir
       mode: 0755
   randnames:
@@ -13,10 +13,10 @@
     - test_rg
     - test_ug
   vars:
-    - name: n0
-      value: $mount_dir/n0
     - name: n1
-      value: n1
+      value: $mount_dir/n1
+    - name: n2
+      value: n2
     - name: syndicate_conf
       value: $config_dir/syndicate.conf
     - name: rg_driver
@@ -68,28 +68,17 @@
       command: stat -f -L -c %T $mount_dir
       compareout: "fuseblk"
 
-- name: run chmod tests 04
+- name: run chown tests 08
   type: sequential
   tasks:
-    # expect 0 mkdir ${n0} 0755
-    - name: T1 - expect 0 mkdir [n0] 0755
-      command: fstest mkdir ${n0} 0755
-      compareout: "0"
-
-    # expect ENOENT chmod ${n0}/${n1}/test 0644
-    - name: T1 - expect ENOENT chmod [n0]/[n1]/test 0644
-      command: fstest chmod ${n0}/${n1}/test 0644
-      compareout: "ENOENT"
+    # expect EFAULT chown NULL 65534 65534
+    - name: T1 - expect EFAULT chown NULL 65534 65534
+      command: fstest chown NULL 65534 65534
+      compareout: "EFAULT"
       exit: 1
 
-    # expect ENOENT chmod ${n0}/${n1} 0644
-    - name: T1 - expect ENOENT chmod [n0]/[n1] 0644
-      command: fstest chmod ${n0}/${n1} 0644
-      compareout: "ENOENT"
+    # expect EFAULT chown DEADCODE 65534 65534
+    - name: T1 - expect EFAULT chown DEADCODE 65534 65534
+      command: fstest chown DEADCODE 65534 65534
+      compareout: "EFAULT"
       exit: 1
-
-    # expect 0 rmdir ${n0}
-    - name: T1 - expect 0 rmdir [n0]
-      command: fstest rmdir ${n0}
-      compareout: "0"
-

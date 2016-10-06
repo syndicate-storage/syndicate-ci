@@ -1,11 +1,11 @@
 ---
 
-- name: setup_chmod_05
+- name: setup_chown_03
   type: setup
   tmpdirs:
-    - name: 065_chmod_05_fs
+    - name: 073_chown_03_fs
       varname: config_dir
-    - name: 065_chmod_05_fs_mount
+    - name: 073_chown_03_fs_mount
       varname: mount_dir
       mode: 0755
   randnames:
@@ -13,12 +13,9 @@
     - test_rg
     - test_ug
   vars:
-    - name: n0
-      value: $mount_dir/n0
-    - name: n1
-      value: $mount_dir/n1
-    - name: n2
-      value: n2
+    # docker allows filename max 242
+    - name: name242
+      value: _123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1
     - name: syndicate_conf
       value: $config_dir/syndicate.conf
     - name: rg_driver
@@ -70,66 +67,50 @@
       command: stat -f -L -c %T $mount_dir
       compareout: "fuseblk"
 
-- name: run chmod tests 05
+- name: run chown tests 03
   type: sequential
   tasks:
-    # expect 0 mkdir ${n1} 0755
-    - name: T1 - expect 0 mkdir [n1] 0755
-      command: fstest mkdir ${n1} 0755
+    # expect 0 mkdir ${name242} 0755
+    - name: T1 - expect 0 mkdir [name242] 0755
+      command: fstest mkdir $mount_dir/${name242} 0755
       compareout: "0"
 
-    # expect 0 chown ${n1} 65534 65534
-    - name: T1 - expect 0 chown [n1] 65534 65534
-      command: sudo fstest chown ${n1} 65534 65534
+    # expect 0 mkdir ${name242}/${name242} 0755
+    - name: T1 - expect 0 mkdir [name242]/[name242] 0755
+      command: fstest mkdir $mount_dir/${name242}/${name242} 0755
       compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 create ${n1}/${n2} 0644
-    - name: T1 - expect 0 -u 65534 -g 65534 create [n1]/[n2] 0644
-      command: sudo fstest -u 65534 -g 65534 create ${n1}/${n2} 0644
+    # expect 0 mkdir ${name242}/${name242}/${name242} 0755
+    - name: T1 - expect 0 mkdir [name242]/[name242]/[name242] 0755
+      command: fstest mkdir $mount_dir/${name242}/${name242}/${name242} 0755
       compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 chmod ${n1}/${n2} 0642
-    - name: T1 - expect 0 -u 65534 -g 65534 chmod [n1]/[n2] 0642
-      command: sudo fstest -u 65534 -g 65534 chmod ${n1}/${n2} 0642
+    # expect 0 create ${name242}/${name242}/${name242}/test 0644
+    - name: T1 - expect 0 mkdir [name242]/[name242]/[name242]/test 0644
+      command: fstest create $mount_dir/${name242}/${name242}/${name242}/test 0644
       compareout: "0"
 
-    # expect 0642 -u 65534 -g 65534 stat ${n1}/${n2} mode
-    - name: T1 - expect 0642 -u 65534 -g 65534 stat [n1]/[n2] mode
-      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} mode
-      compareout: "0642"
-
-    # expect 0 chmod ${n1} 0644
-    - name: T1 - expect 0 chmod [n1] 0644
-      command: sudo fstest chmod ${n1} 0644
+    # expect 0 chown ${name242}/${name242}/${name242}/test 65534 65534
+    - name: T1 - expect 0 chown [name242]/[name242]/[name242]/test 65534 65534
+      command: sudo fstest chown $mount_dir/${name242}/${name242}/${name242}/test 65534 65534
       compareout: "0"
 
-    # expect EACCES -u 65534 -g 65534 chmod ${n1}/${n2} 0620
-    - name: T1 - expect EACCES -u 65534 -g 65534 chmod [n1]/[n2] 0620
-      command: sudo fstest -u 65534 -g 65534 chmod ${n1}/${n2} 0620
-      compareout: "EACCES"
-      exit: 1
-
-    # expect 0 chmod ${n1} 0755
-    - name: T1 - expect 0 chmod [n1] 0755
-      command: sudo fstest chmod ${n1} 0755
+    # expect 0 unlink ${name242}/${name242}/${name242}/test 65534 65534
+    - name: T1 - expect 0 unlink [name242]/[name242]/[name242]/test
+      command: sudo fstest unlink $mount_dir/${name242}/${name242}/${name242}/test
       compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 chmod ${n1}/${n2} 0420
-    - name: T1 - expect 0 -u 65534 -g 65534 chmod [n1]/[n2] 0420
-      command: sudo fstest -u 65534 -g 65534 chmod ${n1}/${n2} 0420
+    # expect 0 rmdir ${name242}/${name242}/${name242}
+    - name: T1 - expect 0 rmdir [name242]/[name242]/[name242]
+      command: fstest rmdir $mount_dir/${name242}/${name242}/${name242}
       compareout: "0"
 
-    # expect 0420 -u 65534 -g 65534 stat ${n1}/${n2} mode
-    - name: T1 - expect 0420 -u 65534 -g 65534 stat [n1]/[n2] mode
-      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} mode
-      compareout: "0420"
-
-    # expect 0 -u 65534 -g 65534 unlink ${n1}/${n2}
-    - name: T1 - expect 0 -u 65534 -g 65534 unlink [n1]/[n2]
-      command: sudo fstest -u 65534 -g 65534 unlink ${n1}/${n2}
+    # expect 0 rmdir ${name242}/${name242}
+    - name: T1 - expect 0 rmdir [name242]/[name242]
+      command: fstest rmdir $mount_dir/${name242}/${name242}
       compareout: "0"
 
-    # expect 0 rmdir ${n1}
-    - name: T1 - expect 0 rmdir [n1]
-      command: sudo fstest rmdir ${n1}
+    # expect 0 rmdir ${name242}
+    - name: T1 - expect 0 rmdir [name242]
+      command: fstest rmdir $mount_dir/${name242}
       compareout: "0"

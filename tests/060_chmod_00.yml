@@ -71,192 +71,238 @@
 - name: run chmod tests 00
   type: sequential
   tasks:
-    - name: T2 - expect 0 create ${n0} 0644
+    # expect 0 create ${n0} 0644
+    - name: T2 - expect 0 create [n0] 0644
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    - name: T2 - expect 0644 stat ${n0} mode
+    # expect 0644 stat ${n0} mode
+    - name: T2 - expect 0644 stat [n0] mode
       command: fstest stat ${n0} mode
       compareout: "0644"
 
-    - name: T2 - expect 0 chmod ${n0} 0111
+    # expect 0 chmod ${n0} 0111
+    - name: T2 - expect 0 chmod [n0] 0111
       command: fstest chmod ${n0} 0111
       compareout: "0"
 
-    - name: T2 - expect 0111 stat ${n0} mode
+    # expect 0111 stat ${n0} mode
+    - name: T2 - expect 0111 stat [n0] mode
       command: fstest stat ${n0} mode
       compareout: "0111"
 
-    - name: T2 - expect 0 unlink ${n0}
+    # expect 0 unlink ${n0}
+    - name: T2 - expect 0 unlink [n0]
       command: fstest unlink ${n0}
       compareout: "0"
 
 
-    - name: T3 - expect 0 mkdir ${n0} 0755
+    # expect 0 mkdir ${n0} 0755
+    - name: T3 - expect 0 mkdir [n0] 0755
       command: fstest mkdir ${n0} 0755
       compareout: "0"
 
-    - name: T3 - expect 0755 stat ${n0} mode
+    # expect 0755 stat ${n0} mode
+    - name: T3 - expect 0755 stat [n0] mode
       command: fstest stat ${n0} mode
       compareout: "0755"
 
-    - name: T3 - expect 0 chmod ${n0} 0753
+    # expect 0 chmod ${n0} 0753
+    - name: T3 - expect 0 chmod [n0] 0753
       command: fstest chmod ${n0} 0753
       compareout: "0"
 
-    - name: T3 - expect 0753 stat ${n0} mode
+    # expect 0753 stat ${n0} mode
+    - name: T3 - expect 0753 stat [n0] mode
       command: fstest stat ${n0} mode
       compareout: "0753"
 
-    - name: T3 - expect 0 rmdir ${n0}
+    # expect 0 rmdir ${n0}
+    - name: T3 - expect 0 rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "0"
 
 
-    - name: T5 - expect 0 create ${n0} 0644
+    # expect 0 create ${n0} 0644
+    - name: T5 - expect 0 create [n0] 0644
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    - name: T5 - expect 0 symlink ${n0} ${n1}
+    # expect 0 symlink ${n0} ${n1}
+    - name: T5 - expect 0 symlink [n0] [n1]
       command: fstest symlink ${n0} ${n1}
       compareout: "0"
 
-    - name: T5 - expect 0644 stat ${n1} mode
+    # expect 0644 stat ${n1} mode
+    - name: T5 - expect 0644 stat [n1] mode
       command: fstest stat ${n1} mode
       compareout: "0644"
 
-    - name: T5 - expect 0 chmod ${n1} 0321
+    # expect 0 chmod ${n1} 0321
+    - name: T5 - expect 0 chmod [n1] 0321
       command: fstest chmod ${n1} 0321
       compareout: "0"
 
-    - name: T5 - expect 0321 stat ${n1} mode
+    # expect 0321 stat ${n1} mode
+    - name: T5 - expect 0321 stat [n1] mode
       command: fstest stat ${n1} mode
       compareout: "0321"
 
-    - name: T5 - expect 0321 lstat ${n0} mode
+    # expect 0321 lstat ${n0} mode
+    - name: T5 - expect 0321 lstat [n0] mode
       command: fstest lstat ${n0} mode
       compareout: "0321"
 
-    - name: T5 - expect 0 unlink ${n0}
+    # expect 0 unlink ${n0}
+    - name: T5 - expect 0 unlink [n0]
       command: fstest unlink ${n0}
       compareout: "0"
 
-    - name: T5 - expect 0 unlink ${n1}
+    # expect 0 unlink ${n1}
+    - name: T5 - expect 0 unlink [n1]
       command: fstest unlink ${n1}
       compareout: "0"
 
 
     # successful chmod(2) updates ctime.
-    - name: T7 - expect 0 create ${n0} 0644
+    # expect 0 create ${n0} 0644
+    - name: T7 - expect 0 create [n0] 0644
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    - name: T7 - ctime1=`${fstest} stat ${n0} ctime`
+    # ctime1=`${fstest} stat ${n0} ctime`
+    - name: T7 - ctime1=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/7_ctime1
 
+    # sleep 1
     - name: T7 - sleep 1
       command: sleep 1s
 
-    - name: T7 - expect 0 chmod ${n0} 0111
+    # expect 0 chmod ${n0} 0111
+    - name: T7 - expect 0 chmod [n0] 0111
       command: fstest chmod ${n0} 0111
       compareout: "0"
 
-    - name: T7 - ctime2=`${fstest} stat ${n0} ctime`
+    # ctime2=`${fstest} stat ${n0} ctime`
+    - name: T7 - ctime2=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/7_ctime2
 
-    - name: T7 - test_check $ctime1 -lt $ctime2
+    # test_check $ctime1 -lt $ctime2
+    - name: T7 - test_check [ctime1] -lt [ctime2]
       command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/7_ctime1 $config_dir/7_ctime2
       exit: 0
 
-    - name: T7 - expect 0 unlink ${n0}
+    # expect 0 unlink ${n0}
+    - name: T7 - expect 0 unlink [n0]
       command: fstest unlink ${n0}
       compareout: "0"
 
 
-    - name: T8 - expect 0 mkdir ${n0} 0755
+    # expect 0 mkdir ${n0} 0755
+    - name: T8 - expect 0 mkdir [n0] 0755
       command: fstest mkdir ${n0} 0755
       compareout: "0"
 
-    - name: T8 - ctime1=`${fstest} stat ${n0} ctime`
+    # ctime1=`${fstest} stat ${n0} ctime`
+    - name: T8 - ctime1=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/8_ctime1
 
+    # sleep 1
     - name: T8 - sleep 1
       command: sleep 1s
 
-    - name: T8 - expect 0 chmod ${n0} 0753
+    # expect 0 chmod ${n0} 0753
+    - name: T8 - expect 0 chmod [n0] 0753
       command: fstest chmod ${n0} 0753
       compareout: "0"
 
-    - name: T8 - ctime2=`${fstest} stat ${n0} ctime`
+    # ctime2=`${fstest} stat ${n0} ctime`
+    - name: T8 - ctime2=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/8_ctime2
 
-    - name: T8 - test_check $ctime1 -lt $ctime2
+    # test_check $ctime1 -lt $ctime2
+    - name: T8 - test_check [ctime1] -lt [ctime2]
       command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/8_ctime1 $config_dir/8_ctime2
       exit: 0
 
-    - name: T8 - expect 0 rmdir ${n0}
+    # expect 0 rmdir ${n0}
+    - name: T8 - expect 0 rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "0"
 
 
     # unsuccessful chmod(2) does not update ctime.
-    - name: T11 - expect 0 create ${n0} 0644
+    # expect 0 create ${n0} 0644
+    - name: T11 - expect 0 create [n0] 0644
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    - name: T11 - ctime1=`${fstest} stat ${n0} ctime`
+    # ctime1=`${fstest} stat ${n0} ctime`
+    - name: T11 - ctime1=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/11_ctime1
 
+    # sleep 1
     - name: T11 - sleep 1
       command: sleep 1s
 
-    - name: T11 - expect EPERM -u 65534 chmod ${n0} 0111
+    # expect EPERM -u 65534 chmod ${n0} 0111
+    - name: T11 - expect EPERM -u 65534 chmod [n0] 0111
       command: sudo fstest -u 65534 chmod ${n0} 0111
       compareout: "EPERM"
       exit: 1
 
-    - name: T11 - ctime2=`${fstest} stat ${n0} ctime`
+    # ctime2=`${fstest} stat ${n0} ctime`
+    - name: T11 - ctime2=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/11_ctime2
 
-    - name: T11 - test_check $ctime1 -eq $ctime2
+    # test_check $ctime1 -eq $ctime2
+    - name: T11 - test_check [ctime1] -eq [ctime2]
       command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/11_ctime1 $config_dir/11_ctime2
       exit: 0
 
-    - name: T11 - expect 0 unlink ${n0}
+    # expect 0 unlink ${n0}
+    - name: T11 - expect 0 unlink [n0]
       command: fstest unlink ${n0}
       compareout: "0"
 
 
-    - name: T12 - expect 0 mkdir ${n0} 0755
+    # expect 0 mkdir ${n0} 0755
+    - name: T12 - expect 0 mkdir [n0] 0755
       command: fstest mkdir ${n0} 0755
       compareout: "0"
 
-    - name: T12 - ctime1=`${fstest} stat ${n0} ctime`
+    # ctime1=`${fstest} stat ${n0} ctime`
+    - name: T12 - ctime1=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/12_ctime1
 
+    # sleep 1
     - name: T12 - sleep 1
       command: sleep 1s
 
-    - name: T12 - expect EPERM -u 65534 chmod ${n0} 0753
+    # expect EPERM -u 65534 chmod ${n0} 0753
+    - name: T12 - expect EPERM -u 65534 chmod [n0] 0753
       command: sudo fstest -u 65534 chmod ${n0} 0753
       compareout: "EPERM"
       exit: 1
 
-    - name: T12 - ctime2=`${fstest} stat ${n0} ctime`
+    # ctime2=`${fstest} stat ${n0} ctime`
+    - name: T12 - ctime2=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
       saveout: $config_dir/12_ctime2
 
-    - name: T12 - test_check $ctime1 -eq $ctime2
+    # test_check $ctime1 -eq $ctime2
+    - name: T12 - test_check [ctime1] -eq [ctime2]
       command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/12_ctime1 $config_dir/12_ctime2
       exit: 0
 
-    - name: T12 - expect 0 rmdir ${n0}
+    # expect 0 rmdir ${n0}
+    - name: T12 - expect 0 rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "0"

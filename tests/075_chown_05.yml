@@ -1,11 +1,11 @@
 ---
 
-- name: setup_chmod_05
+- name: setup_chown_05
   type: setup
   tmpdirs:
-    - name: 065_chmod_05_fs
+    - name: 075_chown_05_fs
       varname: config_dir
-    - name: 065_chmod_05_fs_mount
+    - name: 075_chown_05_fs_mount
       varname: mount_dir
       mode: 0755
   randnames:
@@ -13,8 +13,6 @@
     - test_rg
     - test_ug
   vars:
-    - name: n0
-      value: $mount_dir/n0
     - name: n1
       value: $mount_dir/n1
     - name: n2
@@ -70,7 +68,7 @@
       command: stat -f -L -c %T $mount_dir
       compareout: "fuseblk"
 
-- name: run chmod tests 05
+- name: run chown tests 05
   type: sequential
   tasks:
     # expect 0 mkdir ${n1} 0755
@@ -88,24 +86,24 @@
       command: sudo fstest -u 65534 -g 65534 create ${n1}/${n2} 0644
       compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 chmod ${n1}/${n2} 0642
-    - name: T1 - expect 0 -u 65534 -g 65534 chmod [n1]/[n2] 0642
-      command: sudo fstest -u 65534 -g 65534 chmod ${n1}/${n2} 0642
+    # expect 0 -u 65534 -g 65533,65534 -- chown ${n1}/${n2} -1 65533
+    - name: T1 - expect 0 -u 65534 -g 65533,65534 -- chown [n1]/[n2] -1 65533
+      command: sudo fstest -u 65534 -g 65533,65534 -- chown ${n1}/${n2} -1 65533
       compareout: "0"
 
-    # expect 0642 -u 65534 -g 65534 stat ${n1}/${n2} mode
-    - name: T1 - expect 0642 -u 65534 -g 65534 stat [n1]/[n2] mode
-      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} mode
-      compareout: "0642"
+    # expect 65534,65533 -u 65534 -g 65534 stat ${n1}/${n2} uid,gid
+    - name: T1 - expect 65534,65533 -u 65534 -g 65534 stat [n1]/[n2] uid,gid
+      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} uid,gid
+      compareout: "65534,65533"
 
     # expect 0 chmod ${n1} 0644
     - name: T1 - expect 0 chmod [n1] 0644
       command: sudo fstest chmod ${n1} 0644
       compareout: "0"
 
-    # expect EACCES -u 65534 -g 65534 chmod ${n1}/${n2} 0620
-    - name: T1 - expect EACCES -u 65534 -g 65534 chmod [n1]/[n2] 0620
-      command: sudo fstest -u 65534 -g 65534 chmod ${n1}/${n2} 0620
+    # expect EACCES -u 65534 -g 65533,65534 -- chown ${n1}/${n2} -1 65534
+    - name: T1 - expect EACCES -u 65534 -g 65533,65534 -- chown [n1]/[n2] -1 65534
+      command: sudo fstest -u 65534 -g 65533,65534 -- chown ${n1}/${n2} -1 65534
       compareout: "EACCES"
       exit: 1
 
@@ -114,15 +112,20 @@
       command: sudo fstest chmod ${n1} 0755
       compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 chmod ${n1}/${n2} 0420
-    - name: T1 - expect 0 -u 65534 -g 65534 chmod [n1]/[n2] 0420
-      command: sudo fstest -u 65534 -g 65534 chmod ${n1}/${n2} 0420
+    # expect 65534,65533 -u 65534 -g 65534 stat ${n1}/${n2} uid,gid
+    - name: T1 - expect 65534,65533 -u 65534 -g 65534 stat [n1]/[n2] uid,gid
+      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} uid,gid
+      compareout: "65534,65533"
+
+    # expect 0 -u 65534 -g 65533,65534 -- chown ${n1}/${n2} -1 65534
+    - name: T1 - expect 0 -u 65534 -g 65533,65534 -- chown [n1]/[n2] -1 65534
+      command: sudo fstest -u 65534 -g 65533,65534 -- chown ${n1}/${n2} -1 65534
       compareout: "0"
 
-    # expect 0420 -u 65534 -g 65534 stat ${n1}/${n2} mode
-    - name: T1 - expect 0420 -u 65534 -g 65534 stat [n1]/[n2] mode
-      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} mode
-      compareout: "0420"
+    # expect 65534,65534 -u 65534 -g 65534 stat ${n1}/${n2} uid,gid
+    - name: T1 - expect 65534,65534 -u 65534 -g 65534 stat [n1]/[n2] uid,gid
+      command: sudo fstest -u 65534 -g 65534 stat ${n1}/${n2} uid,gid
+      compareout: "65534,65534"
 
     # expect 0 -u 65534 -g 65534 unlink ${n1}/${n2}
     - name: T1 - expect 0 -u 65534 -g 65534 unlink [n1]/[n2]
