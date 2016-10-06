@@ -1,11 +1,11 @@
 ---
 
-- name: setup_chmod_04
+- name: setup_chown_02
   type: setup
   tmpdirs:
-    - name: 064_chmod_04_fs
+    - name: 072_chown_02_fs
       varname: config_dir
-    - name: 064_chmod_04_fs_mount
+    - name: 072_chown_02_fs_mount
       varname: mount_dir
       mode: 0755
   randnames:
@@ -13,10 +13,11 @@
     - test_rg
     - test_ug
   vars:
-    - name: n0
-      value: $mount_dir/n0
-    - name: n1
-      value: n1
+    # docker allows filename max 242
+    - name: name242
+      value: $mount_dir/_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_1
+    - name: name256
+      value: $mount_dir/_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_12345
     - name: syndicate_conf
       value: $config_dir/syndicate.conf
     - name: rg_driver
@@ -68,28 +69,31 @@
       command: stat -f -L -c %T $mount_dir
       compareout: "fuseblk"
 
-- name: run chmod tests 04
+- name: run chown tests 02
   type: sequential
   tasks:
-    # expect 0 mkdir ${n0} 0755
-    - name: T1 - expect 0 mkdir [n0] 0755
-      command: fstest mkdir ${n0} 0755
+    # expect 0 create ${name242} 0644
+    - name: T1 - expect 0 create [name242] 0644
+      command: fstest create ${name242} 0644
       compareout: "0"
 
-    # expect ENOENT chmod ${n0}/${n1}/test 0644
-    - name: T1 - expect ENOENT chmod [n0]/[n1]/test 0644
-      command: fstest chmod ${n0}/${n1}/test 0644
-      compareout: "ENOENT"
-      exit: 1
-
-    # expect ENOENT chmod ${n0}/${n1} 0644
-    - name: T1 - expect ENOENT chmod [n0]/[n1] 0644
-      command: fstest chmod ${n0}/${n1} 0644
-      compareout: "ENOENT"
-      exit: 1
-
-    # expect 0 rmdir ${n0}
-    - name: T1 - expect 0 rmdir [n0]
-      command: fstest rmdir ${n0}
+    # expect 0 chown ${name242} 65534 65534
+    - name: T1 - expect 0 chown [name242] 65534 65534
+      command: sudo fstest chown ${name242} 65534 65534
       compareout: "0"
 
+    # expect 65534,65534 stat ${name242} uid,gid
+    - name: T1 - expect 65534,65534 stat [name242] uid,gid
+      command: fstest stat ${name242} uid,gid
+      compareout: "65534,65534"
+
+    # expect 0 unlink ${name242}
+    - name: T1 - expect 0 unlink [name242]
+      command: sudo fstest unlink ${name242}
+      compareout: "0"
+
+    # expect ENAMETOOLONG chown ${name256} 65533 65533
+    - name: T1 - expect ENAMETOOLONG chown [name256] 65533 65533
+      command: sudo fstest chown ${name256} 65533 65533
+      compareout: "ENAMETOOLONG"
+      exit: 1

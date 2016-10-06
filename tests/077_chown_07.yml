@@ -1,11 +1,11 @@
 ---
 
-- name: setup_chmod_04
+- name: setup_chown_07
   type: setup
   tmpdirs:
-    - name: 064_chmod_04_fs
+    - name: 077_chown_07_fs
       varname: config_dir
-    - name: 064_chmod_04_fs_mount
+    - name: 077_chown_07_fs_mount
       varname: mount_dir
       mode: 0755
   randnames:
@@ -13,10 +13,10 @@
     - test_rg
     - test_ug
   vars:
-    - name: n0
-      value: $mount_dir/n0
     - name: n1
-      value: n1
+      value: $mount_dir/n1
+    - name: n2
+      value: n2
     - name: syndicate_conf
       value: $config_dir/syndicate.conf
     - name: rg_driver
@@ -68,28 +68,54 @@
       command: stat -f -L -c %T $mount_dir
       compareout: "fuseblk"
 
-- name: run chmod tests 04
+- name: run chown tests 07
   type: sequential
   tasks:
-    # expect 0 mkdir ${n0} 0755
-    - name: T1 - expect 0 mkdir [n0] 0755
-      command: fstest mkdir ${n0} 0755
+    # expect 0 mkdir ${n1} 0755
+    - name: T1 - expect 0 mkdir [n1] 0755
+      command: fstest mkdir ${n1} 0755
       compareout: "0"
 
-    # expect ENOENT chmod ${n0}/${n1}/test 0644
-    - name: T1 - expect ENOENT chmod [n0]/[n1]/test 0644
-      command: fstest chmod ${n0}/${n1}/test 0644
-      compareout: "ENOENT"
-      exit: 1
-
-    # expect ENOENT chmod ${n0}/${n1} 0644
-    - name: T1 - expect ENOENT chmod [n0]/[n1] 0644
-      command: fstest chmod ${n0}/${n1} 0644
-      compareout: "ENOENT"
-      exit: 1
-
-    # expect 0 rmdir ${n0}
-    - name: T1 - expect 0 rmdir [n0]
-      command: fstest rmdir ${n0}
+    # expect 0 chown ${n1} 65534 65534
+    - name: T1 - expect 0 chown [n1] 65534 65534
+      command: sudo fstest chown ${n1} 65534 65534
       compareout: "0"
 
+    # expect 0 -u 65534 -g 65534 create ${n1}/${n2} 0644
+    - name: T1 - expect 0 -u 65534 -g 65534 create [n1]/[n2] 0644
+      command: sudo fstest -u 65534 -g 65534 create ${n1}/${n2} 0644
+      compareout: "0"
+
+    # expect EPERM -u 65534 -g 65534 chown ${n1}/${n2} 65533 65533
+    - name: T1 - expect EPERM -u 65534 -g 65534 chown [n1]/[n2] 65533 65533
+      command: sudo fstest -u 65534 -g 65534 chown ${n1}/${n2} 65533 65533
+      compareout: "EPERM"
+      exit: 1
+
+    # expect EPERM -u 65533 -g 65533 chown ${n1}/${n2} 65534 65534
+    - name: T1 - expect EPERM -u 65533 -g 65533 chown [n1]/[n2] 65534 65534
+      command: sudo fstest -u 65533 -g 65533 chown ${n1}/${n2} 65534 65534
+      compareout: "EPERM"
+      exit: 1
+
+    # expect EPERM -u 65533 -g 65533 chown ${n1}/${n2} 65533 65533
+    - name: T1 - expect EPERM -u 65533 -g 65533 chown [n1]/[n2] 65533 65533
+      command: sudo fstest -u 65533 -g 65533 chown ${n1}/${n2} 65533 65533
+      compareout: "EPERM"
+      exit: 1
+
+    # expect EPERM -u 65534 -g 65534 -- chown ${n1}/${n2} -1 65533
+    - name: T1 - expect EPERM -u 65534 -g 65534 -- chown [n1]/[n2] -1 65533
+      command: sudo fstest -u 65534 -g 65534 -- chown ${n1}/${n2} -1 65533
+      compareout: "EPERM"
+      exit: 1
+
+    # expect 0 unlink ${n1}/${n2}
+    - name: T1 - expect 0 unlink [n1]/[n2]
+      command: sudo fstest unlink ${n1}/${n2}
+      compareout: "0"
+
+    # expect 0 rmdir ${n1}
+    - name: T1 - expect 0 rmdir [n1]
+      command: sudo fstest rmdir ${n1}
+      compareout: "0"
