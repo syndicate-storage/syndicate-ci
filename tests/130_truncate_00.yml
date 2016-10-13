@@ -131,16 +131,16 @@
       compareout: "0"
 
 
-    # successful truncate(2) updates ctime.
+    # successful truncate(2) updates mtime.
     # expect 0 create ${n0} 0644
     - name: T4 - expect 0 create [n0] 0644
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    # ctime1=`${fstest} stat ${n0} ctime`
-    - name: T4 - ctime1=`[fstest] stat [n0] ctime`
+    # ctime=`${fstest} stat ${n0} ctime`
+    - name: T4 - ctime=`[fstest] stat [n0] ctime`
       command: fstest stat ${n0} ctime
-      saveout: $config_dir/4_ctime1
+      saveout: $config_dir/4_ctime
 
     # sleep 1
     - name: T4 - sleep 1
@@ -151,14 +151,14 @@
       command: fstest truncate ${n0} 123
       compareout: "0"
 
-    # ctime2=`${fstest} stat ${n0} ctime`
-    - name: T4 - ctime2=`[fstest] stat [n0] ctime`
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/4_ctime2
+    # mtime=`${fstest} stat ${n0} mtime`
+    - name: T4 - mtime=`[fstest] stat [n0] mtime`
+      command: fstest stat ${n0} mtime
+      saveout: $config_dir/4_mtime
 
-    # test_check $ctime1 -lt $ctime2
-    - name: T4 - test_check [ctime1] -lt [ctime2]
-      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/4_ctime1 $config_dir/4_ctime2
+    # test_check $ctime -lt $mtime
+    - name: T4 - test_check [ctime] -lt [mtime]
+      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/4_ctime $config_dir/4_mtime
       exit: 0
 
     # expect 0 unlink ${n0}
@@ -167,16 +167,16 @@
       compareout: "0"
 
 
-    # unsuccessful truncate(2) does not update ctime.
+    # unsuccessful truncate(2) does not update mtime.
     # expect 0 create ${n0} 0644
     - name: T5 - expect 0 create [n0] 0644
       command: fstest create ${n0} 0644
       compareout: "0"
 
-    # ctime1=`${fstest} stat ${n0} ctime`
-    - name: T5 - ctime1=`[fstest] stat [n0] ctime`
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/5_ctime1
+    # mtime1=`${fstest} stat ${n0} mtime`
+    - name: T5 - mtime1=`[fstest] stat [n0] mtime`
+      command: fstest stat ${n0} mtime
+      saveout: $config_dir/5_mtime1
 
     # sleep 1
     - name: T5 - sleep 1
@@ -188,14 +188,14 @@
       compareout: "EACCES"
       exit: 1
 
-    # ctime2=`${fstest} stat ${n0} ctime`
-    - name: T5 - ctime2=`[fstest] stat [n0] ctime`
-      command: fstest stat ${n0} ctime
-      saveout: $config_dir/5_ctime2
+    # mtime2=`${fstest} stat ${n0} mtime`
+    - name: T5 - mtime2=`[fstest] stat [n0] mtime`
+      command: fstest stat ${n0} mtime
+      saveout: $config_dir/5_mtime2
 
-    # test_check $ctime1 -eq $ctime2
-    - name: T5 - test_check [ctime1] -eq [ctime2]
-      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/5_ctime1 $config_dir/5_ctime2
+    # test_check $mtime1 -eq $mtime2
+    - name: T5 - test_check [mtime1] -eq [mtime2]
+      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/5_mtime1 $config_dir/5_mtime2
       exit: 0
 
     # expect 0 unlink ${n0}
