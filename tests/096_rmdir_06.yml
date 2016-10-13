@@ -87,6 +87,7 @@
     - name: T1 - expect "EEXIST|ENOTEMPTY" rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "ENOTEMPTY"
+      exit: 1
 
     # expect 0 rmdir ${n0}/${n1}
     - name: T1 - expect 0 rmdir [n0]/[n1]
@@ -113,6 +114,7 @@
     - name: T2 - expect "EEXIST|ENOTEMPTY" rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "ENOTEMPTY"
+      exit: 1
 
     # expect 0 unlink ${n0}/${n1}
     - name: T2 - expect 0 unlink [n0]/[n1]
@@ -139,6 +141,7 @@
     - name: T3 - expect "EEXIST|ENOTEMPTY" rmdir [n0]
       command: fstest rmdir ${n0}
       compareout: "ENOTEMPTY"
+      exit: 1
 
     # expect 0 unlink ${n0}/${n1}
     - name: T3 - expect 0 unlink [n0]/[n1]

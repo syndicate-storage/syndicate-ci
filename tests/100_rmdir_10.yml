@@ -93,6 +93,7 @@
     - name: T1 - expect 'ENOTEMPTY|EEXIST' rmdir [n0]/[n1]/..
       command: fstest rmdir ${n0}/${n1}/..
       compareout: "ENOTEMPTY"
+      exit: 1
 
     # expect 0 rmdir ${n0}/${n1}
     - name: T1 - expect 0 rmdir [n0]/[n1]

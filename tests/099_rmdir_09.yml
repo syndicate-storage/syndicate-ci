@@ -132,6 +132,7 @@
     - name: T3 - expect "EACCES|EPERM" -u 65533 -g 65533 rmdir [n0]/[n1]
       command: sudo fstest -u 65533 -g 65533 rmdir ${n0}/${n1}
       compareout: "EPERM"
+      exit: 1
 
     # expect 0 rmdir ${n0}/${n1}
     - name: T3 - expect 0 rmdir [n0]/[n1]
