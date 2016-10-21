@@ -5,16 +5,19 @@
 import argparse
 import sys
 
-def exit_success():
-    print 0
+def exit_success(msg):
+    sys.stderr.write("SUCCESS: %s\n" % msg)
+    sys.stderr.write("Exit with code 0\n")
     sys.exit(0)
 
-def exit_inputfail():
-    print 2
+def exit_inputfail(msg):
+    sys.stderr.write("INPUTFAIL: %s\n" % msg)
+    sys.stderr.write("Exit with code 2\n")
     sys.exit(2)
 
-def exit_fail():
-    print 1
+def exit_fail(msg):
+    sys.stderr.write("FAIL: %s\n" % msg)
+    sys.stderr.write("Exit with code 1\n")
     sys.exit(1)
 
 # handle arguments
@@ -46,43 +49,43 @@ else:
     t2s = args.t2
 
 if not t1s.isdigit():
-    exit_inputfail()
+    exit_inputfail("the first parameter is not digits")
 
 if not t2s.isdigit():
-    exit_inputfail()
+    exit_inputfail("the second parameter is not digits")
 
 t1 = int(t1s)
 t2 = int(t2s)
 
 if args.op in ["eq", "EQ"]:
     if t1 == t2:
-        exit_success()
+        exit_success("%d == %d" % (t1, t2))
     else:
-        exit_fail()
+        exit_fail("%d == %d" % (t1, t2))
 elif args.op in ["neq", "NEQ"]:
     if t1 != t2:
-        exit_success()
+        exit_success("%d != %d" % (t1, t2))
     else:
-        exit_fail()
+        exit_fail("%d != %d" % (t1, t2))
 elif args.op in ["lt", "LT"]:
     if t1 < t2:
-        exit_success()
+        exit_success("%d < %d" % (t1, t2))
     else:
-        exit_fail()
+        exit_fail("%d < %d" % (t1, t2))
 elif args.op in ["le", "LE"]:
     if t1 <= t2:
-        exit_success()
+        exit_success("%d <= %d" % (t1, t2))
     else:
-        exit_fail()
+        exit_fail("%d <= %d" % (t1, t2))
 elif args.op in ["gt", "GT"]:
     if t1 > t2:
-        exit_success()
+        exit_success("%d > %d" % (t1, t2))
     else:
-        exit_fail()
+        exit_fail("%d > %d" % (t1, t2))
 elif args.op in ["ge", "GE"]:
     if t1 >= t2:
-        exit_success()
+        exit_success("%d >= %d" % (t1, t2))
     else:
-        exit_fail()
+        exit_fail("%d >= %d" % (t1, t2))
 else:
-    exit_fail()
+    exit_fail("unknown operator %s" % args.op)
