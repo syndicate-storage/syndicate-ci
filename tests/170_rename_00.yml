@@ -165,52 +165,51 @@
       command: fstest lstat ${n0} type,mode
       compareout: "regular,0644"
 
-    # expect 0 symlink ${n0} ${n1}
-    - name: T5 - expect 0 symlink [n0] [n1]
-      command: fstest symlink ${n0} ${n1}
-      compareout: "0"
+#    # expect 0 symlink ${n0} ${n1}
+#    - name: T5 - expect 0 symlink [n0] [n1]
+#      command: fstest symlink ${n0} ${n1}
+#      compareout: "0"
 
-    # expect regular,${rinode},0644 stat ${n1} type,inode,mode
-    - name: T5 - expect regular,0644 stat [n1] type,mode
-      command: fstest stat ${n1} type,mode
-      compareout: "regular,0644"
+#    # expect regular,${rinode},0644 stat ${n1} type,inode,mode
+#    - name: T5 - expect regular,0644 stat [n1] type,mode
+#      command: fstest stat ${n1} type,mode
+#      compareout: "regular,0644"
 
-    # expect symlink,${sinode} lstat ${n1} type,inode
-    - name: T5 - expect symlink lstat [n1] type
-      command: fstest lstat ${n1} type
-      compareout: "symlink"
+#    # expect symlink,${sinode} lstat ${n1} type,inode
+#    - name: T5 - expect symlink lstat [n1] type
+#      command: fstest lstat ${n1} type
+#      compareout: "symlink"
 
-    # expect 0 rename ${n1} ${n2}
-    - name: T5 - expect 0 rename [n1] [n2]
-      command: fstest rename ${n1} ${n2}
-      compareout: "0"
+#    # expect 0 rename ${n1} ${n2}
+#    - name: T5 - expect 0 rename [n1] [n2]
+#      command: fstest rename ${n1} ${n2}
+#      compareout: "0"
 
-    # expect regular,${rinode},0644 stat ${n0} type,inode,mode
-    - name: T5 - expect regular,0644 stat [n0] type,mode
-      command: fstest stat ${n0} type,mode
-      compareout: "regular,0644"
+#    # expect regular,${rinode},0644 stat ${n0} type,inode,mode
+#    - name: T5 - expect regular,0644 stat [n0] type,mode
+#      command: fstest stat ${n0} type,mode
+#      compareout: "regular,0644"
 
-    # expect ENOENT lstat ${n1} type,mode
-    - name: T5 - expect ENOENT lstat [n1] type,mode
-      command: fstest lstat ${n1} type,mode
-      compareout: "ENOENT"
-      exit: 1
+#    # expect ENOENT lstat ${n1} type,mode
+#    - name: T5 - expect ENOENT lstat [n1] type,mode
+#      command: fstest lstat ${n1} type,mode
+#      compareout: "ENOENT"
+#      exit: 1
 
-    # expect symlink,${sinode} lstat ${n2} type,inode
-    - name: T5 - expect symlink lstat [n2] type
-      command: fstest lstat ${n2} type
-      compareout: "symlink"
+#    # expect symlink,${sinode} lstat ${n2} type,inode
+#    - name: T5 - expect symlink lstat [n2] type
+#      command: fstest lstat ${n2} type
+#      compareout: "symlink"
+
+#    # expect 0 unlink ${n2}
+#    - name: T5 - expect 0 unlink [n2]
+#      command: fstest unlink ${n2}
+#      compareout: "0"
 
     # expect 0 unlink ${n0}
     - name: T5 - expect 0 unlink [n0]
       command: fstest unlink ${n0}
       compareout: "0"
-
-    # expect 0 unlink ${n2}
-    - name: T5 - expect 0 unlink [n2]
-      command: fstest unlink ${n2}
-      compareout: "0"
-
 
     # successful rename(2) updates ctime.
     # expect 0 create ${n0} 0644
@@ -282,39 +281,39 @@
       command: fstest rmdir ${n1}
       compareout: "0"
 
-    # expect 0 symlink ${n2} ${n0}
-    - name: T9 - expect 0 symlink [n2] [n0]
-      command: fstest symlink ${n2} ${n0}
-      compareout: "0"
+#    # expect 0 symlink ${n2} ${n0}
+#    - name: T9 - expect 0 symlink [n2] [n0]
+#      command: fstest symlink ${n2} ${n0}
+#      compareout: "0"
 
-    # ctime1=`${fstest} lstat ${n0} ctime`
-    - name: T9 - ctime1=`[fstest] lstat [n0] ctime`
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/9_ctime1
+#    # ctime1=`${fstest} lstat ${n0} ctime`
+#    - name: T9 - ctime1=`[fstest] lstat [n0] ctime`
+#      command: fstest lstat ${n0} ctime
+#      saveout: $config_dir/9_ctime1
 
-    # sleep 1
-    - name: T9 - sleep 1
-      command: sleep 1s
+#    # sleep 1
+#    - name: T9 - sleep 1
+#      command: sleep 1s
 
-    # expect 0 rename ${n0} ${n1}
-    - name: T9 - expect 0 rename [n0] [n1]
-      command: fstest rename ${n0} ${n1}
-      compareout: "0"
+#    # expect 0 rename ${n0} ${n1}
+#    - name: T9 - expect 0 rename [n0] [n1]
+#      command: fstest rename ${n0} ${n1}
+#      compareout: "0"
 
-    # ctime2=`${fstest} lstat ${n1} ctime`
-    - name: T9 - ctime2=`[fstest] lstat [n1] ctime`
-      command: fstest lstat ${n1} ctime
-      saveout: $config_dir/9_ctime2
+#    # ctime2=`${fstest} lstat ${n1} ctime`
+#    - name: T9 - ctime2=`[fstest] lstat [n1] ctime`
+#      command: fstest lstat ${n1} ctime
+#      saveout: $config_dir/9_ctime2
 
-    # test_check $ctime1 -lt $ctime2
-    - name: T9 - test_check [ctime1] -lt [ctime2]
-      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/9_ctime1 $config_dir/9_ctime2
-      exit: 0
+#    # test_check $ctime1 -lt $ctime2
+#    - name: T9 - test_check [ctime1] -lt [ctime2]
+#      command: $tasksf_dir/cmptimestamps.py lt -f $config_dir/9_ctime1 $config_dir/9_ctime2
+#      exit: 0
 
-    # expect 0 unlink ${n1}
-    - name: T9 - expect 0 unlink [n1]
-      command: fstest unlink ${n1}
-      compareout: "0"
+#    # expect 0 unlink ${n1}
+#    - name: T9 - expect 0 unlink [n1]
+#      command: fstest unlink ${n1}
+#      compareout: "0"
 
 
     # unsuccessful link(2) does not update ctime.
@@ -390,37 +389,37 @@
       compareout: "0"
 
 
-    # expect 0 symlink ${n2} ${n0}
-    - name: T13 - expect 0 symlink [n2] [n0]
-      command: fstest symlink ${n2} ${n0}
-      compareout: "0"
+#    # expect 0 symlink ${n2} ${n0}
+#    - name: T13 - expect 0 symlink [n2] [n0]
+#      command: fstest symlink ${n2} ${n0}
+#      compareout: "0"
 
-    # ctime1=`${fstest} lstat ${n0} ctime`
-    - name: T13 - ctime1=`[fstest] lstat [n0] ctime`
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/13_ctime1
+#    # ctime1=`${fstest} lstat ${n0} ctime`
+#    - name: T13 - ctime1=`[fstest] lstat [n0] ctime`
+#      command: fstest lstat ${n0} ctime
+#      saveout: $config_dir/13_ctime1
 
-    # sleep 1
-    - name: T13 - sleep 1
-      command: sleep 1s
+#    # sleep 1
+#    - name: T13 - sleep 1
+#      command: sleep 1s
 
-    # expect EACCES -u 65534 rename ${n0} ${n1}
-    - name: T13 - expect EACCES -u 65534 rename [n0] [n1]
-      command: sudo fstest -u 65534 rename ${n0} ${n1}
-      compareout: "EACCES"
-      exit: 1
+#    # expect EACCES -u 65534 rename ${n0} ${n1}
+#    - name: T13 - expect EACCES -u 65534 rename [n0] [n1]
+#      command: sudo fstest -u 65534 rename ${n0} ${n1}
+#      compareout: "EACCES"
+#      exit: 1
 
-    # ctime2=`${fstest} lstat ${n0} ctime`
-    - name: T13 - ctime2=`[fstest] lstat [n0] ctime`
-      command: fstest lstat ${n0} ctime
-      saveout: $config_dir/13_ctime2
+#    # ctime2=`${fstest} lstat ${n0} ctime`
+#    - name: T13 - ctime2=`[fstest] lstat [n0] ctime`
+#      command: fstest lstat ${n0} ctime
+#      saveout: $config_dir/13_ctime2
 
-    # test_check $ctime1 -eq $ctime2
-    - name: T13 - test_check [ctime1] -eq [ctime2]
-      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/13_ctime1 $config_dir/13_ctime2
-      exit: 0
+#    # test_check $ctime1 -eq $ctime2
+#    - name: T13 - test_check [ctime1] -eq [ctime2]
+#      command: $tasksf_dir/cmptimestamps.py eq -f $config_dir/13_ctime1 $config_dir/13_ctime2
+#      exit: 0
 
-    # expect 0 unlink ${n0}
-    - name: T13 - expect 0 unlink [n0]
-      command: fstest unlink ${n0}
-      compareout: "0"
+#    # expect 0 unlink ${n0}
+#    - name: T13 - expect 0 unlink [n0]
+#      command: fstest unlink ${n0}
+#      compareout: "0"

@@ -102,4 +102,3 @@
     - name: T1 - expect 0 unlink [n1]
       command: fstest unlink ${n1}
       compareout: "0"
-

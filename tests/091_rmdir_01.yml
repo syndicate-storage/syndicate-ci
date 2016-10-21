@@ -117,18 +117,18 @@
       compareout: "0"
 
 
-    # expect 0 symlink ${n1} ${n0}
-    - name: T3 - expect 0 symlink [n1] [n0]
-      command: fstest symlink ${n1} ${n0}
-      compareout: "0"
+#    # expect 0 symlink ${n1} ${n0}
+#    - name: T3 - expect 0 symlink [n1] [n0]
+#      command: fstest symlink ${n1} ${n0}
+#      compareout: "0"
 
-    # expect ENOTDIR rmdir ${n0}
-    - name: T3 - expect ENOTDIR rmdir [n0]
-      command: fstest rmdir ${n0}
-      compareout: "ENOTDIR"
-      exit: 1
+#    # expect ENOTDIR rmdir ${n0}
+#    - name: T3 - expect ENOTDIR rmdir [n0]
+#      command: fstest rmdir ${n0}
+#      compareout: "ENOTDIR"
+#      exit: 1
 
-    # expect 0 unlink ${n0}
-    - name: T3 - expect 0 unlink [n0]
-      command: fstest unlink ${n0}
-      compareout: "0"
+#    # expect 0 unlink ${n0}
+#    - name: T3 - expect 0 unlink [n0]
+#      command: fstest unlink ${n0}
+#      compareout: "0"
