@@ -121,21 +121,21 @@
       compareout: "0"
 
 
-    # expect 0 symlink test ${n1}/${n2}
-    - name: T5 - expect 0 symlink test [n1]/[n2]
-      command: fstest symlink test ${n1}/${n2}
-      compareout: "0"
+#    # expect 0 symlink test ${n1}/${n2}
+#    - name: T5 - expect 0 symlink test [n1]/[n2]
+#      command: fstest symlink test ${n1}/${n2}
+#      compareout: "0"
 
-    # expect "EEXIST|ENOTEMPTY" rename ${n0} ${n1}
-    - name: T5 - expect EEXIST|ENOTEMPTY rename [n0] [n1]
-      command: fstest rename ${n0} ${n1}
-      compareout: "ENOTEMPTY"
-      exit: 1
+#    # expect "EEXIST|ENOTEMPTY" rename ${n0} ${n1}
+#    - name: T5 - expect EEXIST|ENOTEMPTY rename [n0] [n1]
+#      command: fstest rename ${n0} ${n1}
+#      compareout: "ENOTEMPTY"
+#      exit: 1
 
-    # expect 0 unlink ${n1}/${n2}
-    - name: T5 - expect 0 unlink [n1]/[n2]
-      command: fstest unlink ${n1}/${n2}
-      compareout: "0"
+#    # expect 0 unlink ${n1}/${n2}
+#    - name: T5 - expect 0 unlink [n1]/[n2]
+#      command: fstest unlink ${n1}/${n2}
+#      compareout: "0"
 
 
     # expect 0 rmdir ${n1}

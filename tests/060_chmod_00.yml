@@ -123,45 +123,45 @@
       compareout: "0"
 
 
-    # expect 0 create ${n0} 0644
-    - name: T5 - expect 0 create [n0] 0644
-      command: fstest create ${n0} 0644
-      compareout: "0"
+#    # expect 0 create ${n0} 0644
+#    - name: T5 - expect 0 create [n0] 0644
+#      command: fstest create ${n0} 0644
+#      compareout: "0"
 
-    # expect 0 symlink ${n0} ${n1}
-    - name: T5 - expect 0 symlink [n0] [n1]
-      command: fstest symlink ${n0} ${n1}
-      compareout: "0"
+#    # expect 0 symlink ${n0} ${n1}
+#    - name: T5 - expect 0 symlink [n0] [n1]
+#      command: fstest symlink ${n0} ${n1}
+#      compareout: "0"
 
-    # expect 0644 stat ${n1} mode
-    - name: T5 - expect 0644 stat [n1] mode
-      command: fstest stat ${n1} mode
-      compareout: "0644"
+#    # expect 0644 stat ${n1} mode
+#    - name: T5 - expect 0644 stat [n1] mode
+#      command: fstest stat ${n1} mode
+#      compareout: "0644"
 
-    # expect 0 chmod ${n1} 0321
-    - name: T5 - expect 0 chmod [n1] 0321
-      command: fstest chmod ${n1} 0321
-      compareout: "0"
+#    # expect 0 chmod ${n1} 0321
+#    - name: T5 - expect 0 chmod [n1] 0321
+#      command: fstest chmod ${n1} 0321
+#      compareout: "0"
 
-    # expect 0321 stat ${n1} mode
-    - name: T5 - expect 0321 stat [n1] mode
-      command: fstest stat ${n1} mode
-      compareout: "0321"
+#    # expect 0321 stat ${n1} mode
+#    - name: T5 - expect 0321 stat [n1] mode
+#      command: fstest stat ${n1} mode
+#      compareout: "0321"
 
-    # expect 0321 lstat ${n0} mode
-    - name: T5 - expect 0321 lstat [n0] mode
-      command: fstest lstat ${n0} mode
-      compareout: "0321"
+#    # expect 0321 lstat ${n0} mode
+#    - name: T5 - expect 0321 lstat [n0] mode
+#      command: fstest lstat ${n0} mode
+#      compareout: "0321"
 
-    # expect 0 unlink ${n0}
-    - name: T5 - expect 0 unlink [n0]
-      command: fstest unlink ${n0}
-      compareout: "0"
+#    # expect 0 unlink ${n0}
+#    - name: T5 - expect 0 unlink [n0]
+#      command: fstest unlink ${n0}
+#      compareout: "0"
 
-    # expect 0 unlink ${n1}
-    - name: T5 - expect 0 unlink [n1]
-      command: fstest unlink ${n1}
-      compareout: "0"
+#    # expect 0 unlink ${n1}
+#    - name: T5 - expect 0 unlink [n1]
+#      command: fstest unlink ${n1}
+#      compareout: "0"
 
 
     # successful chmod(2) updates ctime.

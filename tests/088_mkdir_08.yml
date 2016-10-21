@@ -104,18 +104,18 @@
       compareout: "0"
 
 
-    # expect 0 symlink test ${n0}
-    - name: T3 - expect 0 symlink test [n0]
-      command: fstest symlink test ${n0}
-      compareout: "0"
+#    # expect 0 symlink test ${n0}
+#    - name: T3 - expect 0 symlink test [n0]
+#      command: fstest symlink test ${n0}
+#      compareout: "0"
 
-    # expect EEXIST mkdir ${n0} 0755
-    - name: T3 - expect EEXIST mkdir [n0] 0755
-      command: fstest mkdir ${n0} 0755
-      compareout: "EEXIST"
-      exit: 1
+#    # expect EEXIST mkdir ${n0} 0755
+#    - name: T3 - expect EEXIST mkdir [n0] 0755
+#      command: fstest mkdir ${n0} 0755
+#      compareout: "EEXIST"
+#      exit: 1
 
-    # expect 0 unlink ${n0}
-    - name: T3 - expect 0 unlink [n0]
-      command: fstest unlink ${n0}
-      compareout: "0"
+#    # expect 0 unlink ${n0}
+#    - name: T3 - expect 0 unlink [n0]
+#      command: fstest unlink ${n0}
+#      compareout: "0"
