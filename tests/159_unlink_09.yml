@@ -148,55 +148,55 @@
       compareout: "0"
 
 
-    # User owns both: the sticky directory and the symlink to be removed.
-    # expect 0 -u 65534 -g 65534 symlink test ${n0}/${n1}
-    - name: T5 - expect 0 -u 65534 -g 65534 symlink test [n0]/[n1]
-      command: sudo fstest -u 65534 -g 65534 symlink test ${n0}/${n1}
-      compareout: "0"
+#    # User owns both: the sticky directory and the symlink to be removed.
+#    # expect 0 -u 65534 -g 65534 symlink test ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65534 -g 65534 symlink test [n0]/[n1]
+#      command: sudo fstest -u 65534 -g 65534 symlink test ${n0}/${n1}
+#      compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 unlink ${n0}/${n1}
-    - name: T5 - expect 0 -u 65534 -g 65534 unlink [n0]/[n1]
-      command: sudo fstest -u 65534 -g 65534 unlink ${n0}/${n1}
-      compareout: "0"
+#    # expect 0 -u 65534 -g 65534 unlink ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65534 -g 65534 unlink [n0]/[n1]
+#      command: sudo fstest -u 65534 -g 65534 unlink ${n0}/${n1}
+#      compareout: "0"
 
-    # User owns the symlink to be removed, but doesn't own the sticky directory.
-    # expect 0 -u 65533 -g 65533 symlink test ${n0}/${n1}
-    - name: T5 - expect 0 -u 65533 -g 65533 symlink test [n0]/[n1]
-      command: sudo fstest -u 65533 -g 65533 symlink test ${n0}/${n1}
-      compareout: "0"
+#    # User owns the symlink to be removed, but doesn't own the sticky directory.
+#    # expect 0 -u 65533 -g 65533 symlink test ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65533 -g 65533 symlink test [n0]/[n1]
+#      command: sudo fstest -u 65533 -g 65533 symlink test ${n0}/${n1}
+#      compareout: "0"
 
-    # expect 0 -u 65533 -g 65533 unlink ${n0}/${n1}
-    - name: T5 - expect 0 -u 65533 -g 65533 unlink [n0]/[n1]
-      command: sudo fstest -u 65533 -g 65533 unlink ${n0}/${n1}
-      compareout: "0"
+#    # expect 0 -u 65533 -g 65533 unlink ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65533 -g 65533 unlink [n0]/[n1]
+#      command: sudo fstest -u 65533 -g 65533 unlink ${n0}/${n1}
+#      compareout: "0"
 
-    # User owns the sticky directory, but doesn't own the symlink to be removed.
-    # expect 0 -u 65533 -g 65533 symlink test ${n0}/${n1}
-    - name: T5 - expect 0 -u 65533 -g 65533 symlink test [n0]/[n1]
-      command: sudo fstest -u 65533 -g 65533 symlink test ${n0}/${n1}
-      compareout: "0"
+#    # User owns the sticky directory, but doesn't own the symlink to be removed.
+#    # expect 0 -u 65533 -g 65533 symlink test ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65533 -g 65533 symlink test [n0]/[n1]
+#      command: sudo fstest -u 65533 -g 65533 symlink test ${n0}/${n1}
+#      compareout: "0"
 
-    # expect 0 -u 65534 -g 65534 unlink ${n0}/${n1}
-    - name: T5 - expect 0 -u 65534 -g 65534 unlink [n0]/[n1]
-      command: sudo fstest -u 65534 -g 65534 unlink ${n0}/${n1}
-      compareout: "0"
+#    # expect 0 -u 65534 -g 65534 unlink ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65534 -g 65534 unlink [n0]/[n1]
+#      command: sudo fstest -u 65534 -g 65534 unlink ${n0}/${n1}
+#      compareout: "0"
 
-    # User doesn't own the sticky directory nor the symlink to be removed.
-    # expect 0 -u 65534 -g 65534 symlink test ${n0}/${n1}
-    - name: T5 - expect 0 -u 65534 -g 65534 symlink test [n0]/[n1]
-      command: sudo fstest -u 65534 -g 65534 symlink test ${n0}/${n1}
-      compareout: "0"
+#    # User doesn't own the sticky directory nor the symlink to be removed.
+#    # expect 0 -u 65534 -g 65534 symlink test ${n0}/${n1}
+#    - name: T5 - expect 0 -u 65534 -g 65534 symlink test [n0]/[n1]
+#      command: sudo fstest -u 65534 -g 65534 symlink test ${n0}/${n1}
+#      compareout: "0"
 
-    # expect "EACCES|EPERM" -u 65533 -g 65533 unlink ${n0}/${n1}
-    - name: T5 - expect EACCES|EPERM -u 65533 -g 65533 unlink [n0]/[n1]
-      command: sudo fstest -u 65533 -g 65533 unlink ${n0}/${n1}
-      compareout: "EPERM"
-      exit: 1
+#    # expect "EACCES|EPERM" -u 65533 -g 65533 unlink ${n0}/${n1}
+#    - name: T5 - expect EACCES|EPERM -u 65533 -g 65533 unlink [n0]/[n1]
+#      command: sudo fstest -u 65533 -g 65533 unlink ${n0}/${n1}
+#      compareout: "EPERM"
+#      exit: 1
 
-    # expect 0 unlink ${n0}/${n1}
-    - name: T5 - expect 0 unlink [n0]/[n1]
-      command: sudo fstest unlink ${n0}/${n1}
-      compareout: "0"
+#    # expect 0 unlink ${n0}/${n1}
+#    - name: T5 - expect 0 unlink [n0]/[n1]
+#      command: sudo fstest unlink ${n0}/${n1}
+#      compareout: "0"
 
 
     # expect 0 rmdir ${n0}
