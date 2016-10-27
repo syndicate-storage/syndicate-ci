@@ -28,12 +28,12 @@ build:
 	docker build -f $(CONTAINER_DIR)/Dockerfile.base --no-cache=${NO_DOCKER_CACHE} --rm -t syndicate-ci-base $(CONTAINER_DIR)
 
 tests:
-	bash testwrapper.sh
+	bash tests/testwrapper.sh
 
 full_test: docker_test docker_logs rmi
 
 docker_test: up
-	$(DOCKER_COMPOSE) run test /opt/testwrapper.sh
+	$(DOCKER_COMPOSE) run test /opt/tests/testwrapper.sh
 
 docker_logs:
 	$(DOCKER_COMPOSE) logs -t --no-color ms > ${OUTPUT_DIR}/docker_logs 2>&1
