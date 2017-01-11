@@ -6,6 +6,7 @@ MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 # Install Syndicate UG tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
     python-yaml \
+    python-psutil \
     syndicate-ug-tools \
     syndicate-rg \
     syndicate-ag \
