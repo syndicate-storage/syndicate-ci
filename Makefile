@@ -31,7 +31,7 @@ syndicate-tests:
 	git pull https://github.com/syndicate-storage/syndicate-tests
 
 tests: syndicate-tests
-	bash syndicate-tests/testwrapper.sh
+	bash syndicate-tests/testwrapper.sh -c -m
 
 full_test: docker_test docker_logs rmi
 
