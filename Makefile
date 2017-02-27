@@ -36,7 +36,7 @@ tests: syndicate-tests
 full_test: docker_test docker_logs rmi
 
 docker_test: up
-	$(DOCKER_COMPOSE) run test /opt/syndicate-tests/testwrapper.sh
+	$(DOCKER_COMPOSE) run test /opt/syndicate-tests/testwrapper.sh -c -m
 
 docker_logs:
 	$(DOCKER_COMPOSE) logs -t --no-color ms > ${OUTPUT_DIR}/docker_logs 2>&1
