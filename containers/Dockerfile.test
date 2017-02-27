@@ -8,7 +8,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
     build-essential \
     fuse \
     graphviz \
-    python-magic \
     python-pip \
     python-psutil \
     python-yaml \
@@ -23,8 +22,8 @@ COPY fstest /opt/fstest
 WORKDIR /opt/fstest
 RUN make && cp fstest /usr/bin/ && chmod 777 /usr/bin/fstest
 
-#install gprof2dot for python
-RUN pip install gprof2dot
+#install additional python tools/modules
+RUN pip install gprof2dot python-magic
 
 # Join to the fuse group
 RUN usermod -aG fuse syndicate
