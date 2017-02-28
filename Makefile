@@ -31,12 +31,12 @@ syndicate-tests:
 	git pull https://github.com/syndicate-storage/syndicate-tests
 
 tests: syndicate-tests
-	bash syndicate-tests/testwrapper.sh -c -m
+	bash syndicate-tests/testwrapper.sh
 
 full_test: docker_test docker_logs rmi
 
 docker_test: up
-	$(DOCKER_COMPOSE) run test /opt/syndicate-tests/testwrapper.sh -c -m
+	$(DOCKER_COMPOSE) run test /opt/syndicate-tests/testwrapper.sh
 
 docker_logs:
 	$(DOCKER_COMPOSE) logs -t --no-color ms > ${OUTPUT_DIR}/docker_logs 2>&1
