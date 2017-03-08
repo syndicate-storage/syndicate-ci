@@ -6,6 +6,7 @@ MAINTAINER Zack Williams <zdw@cs.arizona.edu>
 # Install Syndicate UG tools
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-yes\
     build-essential \
+    curl \
     fuse \
     graphviz \
     python-pip \
@@ -17,12 +18,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
     syndicatefs \
     valgrind
 
+# Install Node.js
+RUN curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
+    apt-get install -y nodejs
+
+# Install Syndicate Node.js binding
+RUN npm install -g \
+    syndicate-drive \
+    syndicate-drive-ug-tools
+
 # Install fstest
 COPY fstest /opt/fstest
 WORKDIR /opt/fstest
 RUN make && cp fstest /usr/bin/ && chmod 777 /usr/bin/fstest
 
-#install additional python tools/modules
+# Install additional python tools/modules
 RUN pip install gprof2dot python-magic
 
 # Join to the fuse group
