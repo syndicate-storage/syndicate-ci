@@ -16,6 +16,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --force-
     syndicate-ag \
     syndicate-rg \
     syndicate-ug-tools \
+    syndicate-automount \
     syndicatefs \
     valgrind
 
